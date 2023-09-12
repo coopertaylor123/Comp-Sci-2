@@ -1,0 +1,69 @@
+def classify_item(length, height, thickness):
+    if 3.5 <= length <= 4.25 and 3.5 <= height <= 6 and .007 <= thickness <= .016:
+        return 'REGULAR POST CARD'
+    elif 4.25 < length <= 6 and 6 <= height <= 11.5 and .007 <= thickness <= .015:
+        return 'LARGE POST CARD'
+    elif 3.5 <= length <= 6.125 and 5 <= height <= 11.5 and .016 <= thickness <= .25:
+        return 'ENVELOPE'
+    elif 6.125 < length <= 24 and 11 <= height <= 18 and .25 < thickness <= .5:
+        return 'LARGE ENVELOPE'
+    elif (length + height*2 + thickness*2) <= 84:
+        return 'PACKAGE'
+    elif 84 < (length + height*2 + thickness*2) <= 130:
+        return 'LARGE PACKAGE'
+    else:
+        return 'UNMAILABLE'
+
+def find_zone(zip_code):
+    zip_code = int(zip_code)
+    if 1 <= zip_code <= 6999:
+        return 1
+    elif 7000 <= zip_code <= 19999:
+        return 2
+    elif 20000 <= zip_code <= 35999:
+        return 3
+    elif 36000 <= zip_code <= 62999:
+        return 4
+    elif 63000 <= zip_code <= 84999:
+        return 5
+    elif 85000 <= zip_code <= 99999:
+        return 6
+    else:
+        return None
+
+def postage_calculator(length, height, thickness, start_zip, end_zip):
+    item_class = classify_item(length, height, thickness)
+    start_zone = find_zone(start_zip)
+    end_zone = find_zone(end_zip)
+
+    if start_zone is None or end_zone is None:
+        return 'UNMAILABLE'
+    
+    zones_travelled = abs(end_zone - start_zone)
+    
+    if item_class == 'REGULAR POST CARD':
+        return round(0.20 + 0.03 * zones_travelled, 2)
+    elif item_class == 'LARGE POST CARD':
+        return round(0.37 + 0.03 * zones_travelled, 2)
+    elif item_class == 'ENVELOPE':
+        return round(0.37 + 0.04 * zones_travelled, 2)
+    elif item_class == 'LARGE ENVELOPE':
+        return round(0.60 + 0.05 * zones_travelled, 2)
+    elif item_class == 'PACKAGE':
+        return round(2.95 + 0.25 * zones_travelled, 2)
+    elif item_class == 'LARGE PACKAGE':
+        return round(3.95 + 0.35 * zones_travelled, 2)
+    else:
+        return 'UNMAILABLE'
+
+# Asking the user for input
+length = float(input("Enter the length of the item (in inches): "))
+height = float(input("Enter the height of the item (in inches): "))
+thickness = float(input("Enter the thickness of the item (in inches): "))
+start_zip = input("Enter the starting zip code: ")
+end_zip = input("Enter the ending zip code: ")
+
+# Calculate and print the result
+print(postage_calculator(length, height, thickness, start_zip, end_zip))
+
+
