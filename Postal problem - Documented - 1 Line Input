@@ -1,3 +1,20 @@
+# Author: Cooper Taylor
+# Date Finished: 9/11/2023
+# Description: After putting in dimensions, and start and end zip code it return the cost of the shipment.
+# Bugs: None
+# Challenges: N/A
+# Sources: None
+
+
+#This function takes in a number and then returns that number without the 0
+def remove_leading_zeros(num):
+  
+    for i in range(len(num)):
+
+        if num[i] != '0':
+            new_num = num[i::];
+            return new_num;
+#This function takes in the length, height, and width of what the user is trying to ship and returns the package type
 def classify_item(length, height, thickness):  # Define function to classify items based on size
     if 3.5 <= length <= 4.25 and 3.5 <= height <= 6 and .007 <= thickness <= .016:  # Check dimensions for regular post card
         return 'REGULAR POST CARD'
@@ -14,6 +31,7 @@ def classify_item(length, height, thickness):  # Define function to classify ite
     else:  # For items that don't fit any category
         return 'UNMAILABLE'
 
+#This function takes in a zipcode and returned what zone it is in
 def find_zone(zip_code):  # Define function to determine postal zone from zip code
     zip_code = int(zip_code)  # Convert zip_code to an integer
     if 1 <= zip_code <= 6999:  # Zone 1 range
@@ -31,6 +49,7 @@ def find_zone(zip_code):  # Define function to determine postal zone from zip co
     else:  # Invalid zip_code
         return None
 
+#This function takes in the variables length, height, thickness, start_zip, and end_zip  and return the price of shipping 
 def postage_calculator(length, height, thickness, start_zip, end_zip):  # Define function to calculate postage
     item_class = classify_item(length, height, thickness)  # Determine the item class based on dimensions
     start_zone = find_zone(start_zip)  # Determine the starting zone
@@ -57,12 +76,11 @@ def postage_calculator(length, height, thickness, start_zip, end_zip):  # Define
     else:  # Return 'UNMAILABLE' for unknown classifications
         return 'UNMAILABLE'
 
-inputs = input("Enter the length, height, thickness, starting zip code, and ending zip code separated by commas: ")  # Get user input
+inputs = input()  # Get user input
 length, height, thickness, start_zip, end_zip = [x.strip() for x in inputs.split(",")]  # Sort and clean the input, by seperating the input after each comma, strips any whitespace from each item in the list, then assigns each variable the correct value
 
 length = float(length)  # Convert length to float
 height = float(height)  # Convert height to float
 thickness = float(thickness)  # Convert thickness to float
 
-print(postage_calculator(length, height, thickness, start_zip, end_zip))  # Display postage
-
+print(remove_leading_zeros(str(postage_calculator(length, height, thickness, start_zip, end_zip))))  # Display postage
