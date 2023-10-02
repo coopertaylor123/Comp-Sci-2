@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Postage Calculator</title>
+    <style>
+        .greenBox {
+            background-color: green;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+        }
+
+        .redBox {
+            background-color: red;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Postage Calculator</h2>
+
+    Length: <input type="text" id="lengthInput" onkeyup="validateLength(this)"><span id="lengthValid" class="redBox"></span><br><br>
+    Height: <input type="text" id="heightInput" onkeyup="validateHeight(this)"><span id="heightValid" class="redBox"></span><br><br>
+    Thickness: <input type="text" id="thicknessInput" onkeyup="validateThickness(this)"><span id="thicknessValid" class="redBox"></span><br><br>
+    Start Zip: <input type="text" id="startZipInput" onkeyup="validateStartZip(this)"><span id="startZipValid" class="redBox"></span><br><br>
+    End Zip: <input type="text" id="endZipInput" onkeyup="validateEndZip(this)"><span id="endZipValid" class="redBox"></span><br><br>
+    <button onclick="computePostage()">Calculate</button>
+
+    <h3>Result:</h3>
+    <p id="resultText">Result will show here.</p>
+
+    <script>
+        function checkIfNumberIsValid(number) {
+            return !isNaN(number) && number > 0;
+        }
+
+        function checkZipIsValid(zip) {
+            if (zip.length !== 5) return false;
+            for (let i = 0; i < zip.length; i++) {
+                if (isNaN(zip[i])) return false;
+            }
+            return true;
+        }
+
+        function validateLength(input) {
+            const isValid = checkIfNumberIsValid(parseFloat(input.value));
+            showValidationResult('lengthValid', isValid);
+        }
+
+        function validateHeight(input) {
+            const isValid = checkIfNumberIsValid(parseFloat(input.value));
+            showValidationResult('heightValid', isValid);
+        }
+
+        function validateThickness(input) {
+            const isValid = checkIfNumberIsValid(parseFloat(input.value));
+            showValidationResult('thicknessValid', isValid);
+        }
+
+        function validateStartZip(input) {
+            const isValid = checkZipIsValid(input.value);
+            showValidationResult('startZipValid', isValid);
+        }
+
+        function validateEndZip(input) {
+            const isValid = checkZipIsValid(input.value);
+            showValidationResult('endZipValid', isValid);
+        }
+
+        function showValidationResult(elementId, isValid) {
+            const element = document.getElementById(elementId);
+            if (isValid) {
+                element.className = "greenBox";
+            } else {
+                element.className = "redBox";
+            }
+        }
+
+        function computePostage() {
+            let lengthValue = parseFloat(document.getElementById("lengthInput").value);
+            let heightValue = parseFloat(document.getElementById("heightInput").value);
+            let thicknessValue = parseFloat(document.getElementById("thicknessInput").value);
+            let startZipValue = document.getElementById("startZipInput").value;
+            let endZipValue = document.getElementById("endZipInput").value;
+
+            let itemCategory = classifyItemBySize(lengthValue, heightValue, thicknessValue);
+            let startingZone = determinePostalZone(startZipValue);
+            let endingZone = determinePostalZone(endZipValue);
+            let totalZones = Math.abs(endingZone - startingZone) + 1;
+
+            let finalCost = 0;
+            if (itemCategory === 'REGULAR POST CARD') {
+                finalCost = 0.20 + 0.03 * totalZones;
+            } else if (itemCategory === 'LARGE POST CARD') {
+                finalCost = 0.37 + 0.03 * totalZones;
+            } else if (itemCategory === 'ENVELOPE') {
+                finalCost = 0.37 + 0.04 * totalZones;
+            } else if (itemCategory === 'LARGE ENVELOPE') {
+                finalCost = 0.60 + 0.05 * totalZones;
+            } else if (itemCategory === 'PACKAGE') {
+                finalCost = 2.95 + 0.25 * totalZones;
+            } else if (itemCategory === 'LARGE PACKAGE') {
+                finalCost = 3.95 + 0.35 * totalZones;
+            } else {
+                finalCost = 'UNMAILABLE';
+            }
+
+            document.getElementById("resultText").textContent = "Postage Cost: $" + (typeof finalCost === 'number' ? finalCost.toFixed(2) : finalCost);
+        }
+
+        function classifyItemBySize(length, height, thickness) {
+            if (length >= 3.5 && length <= 4.25 && height >= 3.5 && height <= 6 && thickness >= 0.007 && thickness <= 0.016) {
+                return 'REGULAR POST CARD';
+            } else if (length > 4.25 && length <= 6 && height >= 6 && height <= 11.5 && thickness >= 0.007 && thickness <= 0.015) {
+                return 'LARGE POST CARD';
+            } else if (length >= 3.5 && length <= 6.125 && height >= 5 && height <= 11.5 && thickness >= 0.016 && thickness <= 0.25) {
+                return 'ENVELOPE';
+            } else if (length > 6.125 && length <= 24 && height >= 11 && height <= 18 && thickness > 0.25 && thickness <= 0.5) {
+                return 'LARGE ENVELOPE';
+            } else if (length + height * 2 + thickness * 2 <= 84) {
+                return 'PACKAGE';
+            } else if (84 < length + height * 2 + thickness * 2 && length + height * 2 + thickness * 2 <= 130) {
+                return 'LARGE PACKAGE';
+            } else {
+                return 'UNMAILABLE';
+            }
+        }
+
+        function determinePostalZone(zipCode) {
+            if (zipCode >= 1 && zipCode <= 6999) {
+                return 1;
+            } else if (zipCode >= 7000 && zipCode <= 19999) {
+                return 2;
+            } else if (zipCode >= 20000 && zipCode <= 35999) {
+                return 3;
+            } else if (zipCode >= 36000 && zipCode <= 62999) {
+                return 4;
+            } else if (zipCode >= 63000 && zipCode <= 84999) {
+                return 5;
+            } else if (zipCode >= 85000 && zipCode <= 99999) {
+                return 6;
+            } else {
+                return 0;
+            }
+        }
+    </script>
+</body>
+
+</html>
