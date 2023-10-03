@@ -1,0 +1,85 @@
+BOARD_SIZE = 5
+
+def print_board(board):
+    """Display the board."""
+    for row in board:
+        print(" ".join(row))
+    print()
+
+def initialize_board(size):
+    """Create a new board."""
+    return [["O"] * size for _ in range(size)]
+
+def place_ship(board):
+    """Allow a player to place a ship."""
+    while True:
+        print_board(board)
+        try:
+            ship_row = int(input(f"Choose a row (0 to {BOARD_SIZE-1}) for your ship: "))
+            ship_col = int(input(f"Choose a column (0 to {BOARD_SIZE-1}) for your ship: "))
+
+            if 0 <= ship_row < BOARD_SIZE and 0 <= ship_col < BOARD_SIZE and board[ship_row][ship_col] == "O":
+                board[ship_row][ship_col] = "S"
+                print("Ship placed!")
+                break
+            else:
+                print("Invalid location. Please choose a different spot.")
+        except ValueError:
+            print("Please enter valid row and column numbers.")
+
+def guess_ship_location(board, opponent_board):
+    """Allow a player to guess the opponent's ship location."""
+    print_board(board)
+    try:
+        guess_row = int(input(f"Guess Row (0 to {BOARD_SIZE-1}): "))
+        guess_col = int(input(f"Guess Col (0 to {BOARD_SIZE-1}): "))
+
+        if 0 <= guess_row < BOARD_SIZE and 0 <= guess_col < BOARD_SIZE:
+            if opponent_board[guess_row][guess_col] == "S":
+                print("Congratulations! You sunk the battleship!")
+                board[guess_row][guess_col] = "X"
+                opponent_board[guess_row][guess_col] = "X"
+                return True
+            else:
+                print("You missed!")
+                if board[guess_row][guess_col] != "X":
+                    board[guess_row][guess_col] = "-"
+        else:
+            print("Oops, that's not even in the ocean.")
+    except ValueError:
+        print("Please enter valid row and column numbers.")
+
+    return False
+
+def main():
+    board1 = initialize_board(BOARD_SIZE)
+    board2 = initialize_board(BOARD_SIZE)
+
+    # Player 1 places ship
+    print("Player 1, place your ship:")
+    place_ship(board1)
+    print("\n" * 50)  # Clear screen by printing multiple new lines
+
+    # Player 2 places ship
+    print("Player 2, place your ship:")
+    place_ship(board2)
+    print("\n" * 50)
+
+    # Game loop
+    while True:
+        # Player 1's turn to guess
+        print("Player 1's turn to guess:")
+        if guess_ship_location(board1, board2):
+            print("Player 1 wins!")
+            break
+        print("\n" * 50)
+
+        # Player 2's turn to guess
+        print("Player 2's turn to guess:")
+        if guess_ship_location(board2, board1):
+            print("Player 2 wins!")
+            break
+        print("\n" * 50)
+
+if __name__ == "__main__":
+    main()
