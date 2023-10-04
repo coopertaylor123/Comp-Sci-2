@@ -1,0 +1,141 @@
+
+# Author: Cooper Taylor
+# Date Finished: 10/4/2023
+# Description: Two people can play battleship against each other
+# Bugs: None
+# Challenges: N/A
+# Sources: None
+
+import time  # Import the time module to use the sleep function for delays
+
+# Set the size of the game board
+BOARD_SIZE = 5
+
+def print_board(board):
+    """Display the board."""
+    for row in board:          # Iterate through each row of the board
+        print(" ".join(row))  # Convert the row list to a string and print it
+    print()  # Print a newline for formatting
+
+def initialize_board(size):
+    """Create a new board."""
+    # Return a list of lists (2D list) filled with "O" (denoting water)
+    return [["O"] * size for _ in range(size)]
+
+def print_instructions():
+    """Print the game instructions."""
+    # Display the game instructions
+    print("""
+Welcome to Battleship!
+
+Instructions:
+1. Each player will place a set number of ships on their board.
+2. Players will take turns guessing where the opponent's ships are.
+3. If a player guesses correctly, they will sink one of the opponent's ships.
+4. The first player to sink all of the opponent's ships wins!
+
+Board Symbols:
+O - Empty
+S - Your Ship
+X - Ship that has been hit
+- - Missed Guess
+
+Let's start the game!
+    """)
+
+def place_ship(board, number_of_ships=3):
+    """Allow a player to place ships."""
+    ships_placed = 0  # Counter to keep track of placed ships
+    # Loop until the required number of ships are placed
+    while ships_placed < number_of_ships:
+        print_board(board)  # Show the board for the player
+        try:
+            # Get the desired row and column from the player
+            ship_row = int(input(f"Choose a row (0 to {BOARD_SIZE-1}) for your ship: "))
+            ship_col = int(input(f"Choose a column (0 to {BOARD_SIZE-1}) for your ship: "))
+            # Validate the entered coordinates
+            if 0 <= ship_row < BOARD_SIZE and 0 <= ship_col < BOARD_SIZE and board[ship_row][ship_col] == "O":
+                board[ship_row][ship_col] = "S"  # Mark the ship's position on the board
+                ships_placed += 1  # Increment the counter
+                print(f"Ship {ships_placed} placed!")
+            else:
+                print("Invalid location. Please choose a different spot.")
+        except ValueError:  # Handle potential errors in user input
+            print("Please enter valid row and column numbers.")
+
+def guess_ship_location(board, opponent_board, number_of_ships=3):
+    """Allow a player to guess the opponent's ship locations."""
+    print_board(board)  # Show the board for the player to make a guess
+    try:
+        # Get the guess row and column from the player
+        guess_row = int(input(f"Guess Row (0 to {BOARD_SIZE-1}): "))
+        guess_col = int(input(f"Guess Col (0 to {BOARD_SIZE-1}): "))
+        # Validate the guessed coordinates
+        if 0 <= guess_row < BOARD_SIZE and 0 <= guess_col < BOARD_SIZE:
+            if opponent_board[guess_row][guess_col] == "S":  # Check if the guess hits a ship
+                print("Congratulations! You sunk a battleship!")
+                board[guess_row][guess_col] = "X"  # Mark the hit on the player's guess board
+                opponent_board[guess_row][guess_col] = "X"  # Mark the hit on the opponent's board
+                # Check if all ships are sunk by counting "S" on the opponent board
+                if sum(row.count("S") for row in opponent_board) == 0:
+                    return True
+            else:
+                print("You missed!")
+                # Mark the miss on the player's guess board
+                if board[guess_row][guess_col] != "X":
+                    board[guess_row][guess_col] = "-"
+        else:
+            print("Oops, that's not even in the ocean.")
+    except ValueError:  # Handle potential errors in user input
+        print("Please enter valid row and column numbers.")
+
+    return False  # Return False if all opponent's ships aren't sunk yet
+
+def main():
+    NUMBER_OF_SHIPS = 3  # Define the number of ships each player should place
+
+    # Print the game instructions
+    print_instructions()
+    # Pause to allow players to read instructions
+    time.sleep(5)
+    # Clear the screen by printing multiple new lines
+    print("\n" * 50)
+
+    # Initialize the game boards for both players
+    board1 = initialize_board(BOARD_SIZE)
+    board2 = initialize_board(BOARD_SIZE)
+
+    # Let Player 1 place their ships
+    print("Player 1, place your ships:")
+    place_ship(board1, NUMBER_OF_SHIPS)
+    print("Switching to Player 2...")
+    time.sleep(3)  # Pause before switching players
+    print("\n" * 50)
+
+    # Let Player 2 place their ships
+    print("Player 2, place your ships:")
+    place_ship(board2, NUMBER_OF_SHIPS)
+    print("Switching to Player 1...")
+    time.sleep(3)
+    print("\n" * 50)
+
+    # Game loop for players to take turns guessing
+    while True:
+        print("Player 1's turn to guess:")
+        if guess_ship_location(board1, board2, NUMBER_OF_SHIPS):
+            print("Player 1 wins!")
+            break
+        print("Switching to Player 2...")
+        time.sleep(3)
+        print("\n" * 50)
+
+        print("Player 2's turn to guess:")
+        if guess_ship_location(board2, board1, NUMBER_OF_SHIPS):
+            print("Player 2 wins!")
+            break
+        print("Switching to Player 1...")
+        time.sleep(3)
+        print("\n" * 50)
+
+if __name__ == "__main__":
+    main()  
