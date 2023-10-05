@@ -1,3 +1,4 @@
+
 # Author: Cooper Taylor
 # Date Finished: 9/11/2023
 # Description: After putting in dimensions, and start and end zip code it return the cost of the shipment.
@@ -5,82 +6,86 @@
 # Challenges: N/A
 # Sources: None
 
-
-#This function takes in a number and then returns that number without the 0
-def remove_leading_zeros(num):
-  
-    for i in range(len(num)):
-
-        if num[i] != '0':
-            new_num = num[i::];
-            return new_num;
-#This function takes in the length, height, and width of what the user is trying to ship and returns the package type
-def classify_item(length, height, thickness):  # Define function to classify items based on size
-    if 3.5 <= length <= 4.25 and 3.5 <= height <= 6 and .007 <= thickness <= .016:  # Check dimensions for regular post card
-        return 'REGULAR POST CARD'
-    elif 4.25 < length <= 6 and 6 <= height <= 11.5 and .007 <= thickness <= .015:  # Check dimensions for large post card
-        return 'LARGE POST CARD'
-    elif 3.5 <= length <= 6.125 and 5 <= height <= 11.5 and .016 <= thickness <= .25:  # Check dimensions for envelope
-        return 'ENVELOPE'
-    elif 6.125 < length <= 24 and 11 <= height <= 18 and .25 < thickness <= .5:  # Check dimensions for large envelope
-        return 'LARGE ENVELOPE'
-    elif (length + height*2 + thickness*2) <= 84:  # Check perimeter dimensions for package
-        return 'PACKAGE'
-    elif 84 < (length + height*2 + thickness*2) <= 130:  # Check perimeter dimensions for large package
-        return 'LARGE PACKAGE'
-    else:  # For items that don't fit any category
-        return 'UNMAILABLE'
-
-#This function takes in a zipcode and returned what zone it is in
-def find_zone(zip_code):  # Define function to determine postal zone from zip code
-    zip_code = int(zip_code)  # Convert zip_code to an integer
-    if 1 <= zip_code <= 6999:  # Zone 1 range
-        return 1
-    elif 7000 <= zip_code <= 19999:  # Zone 2 range
-        return 2
-    elif 20000 <= zip_code <= 35999:  # Zone 3 range
-        return 3
-    elif 36000 <= zip_code <= 62999:  # Zone 4 range
-        return 4
-    elif 63000 <= zip_code <= 84999:  # Zone 5 range
-        return 5
-    elif 85000 <= zip_code <= 99999:  # Zone 6 range
-        return 6
-    else:  # Invalid zip_code
-        return None
-
-#This function takes in the variables length, height, thickness, start_zip, and end_zip  and return the price of shipping 
-def postage_calculator(length, height, thickness, start_zip, end_zip):  # Define function to calculate postage
-    item_class = classify_item(length, height, thickness)  # Determine the item class based on dimensions
-    start_zone = find_zone(start_zip)  # Determine the starting zone
-    end_zone = find_zone(end_zip)  # Determine the ending zone
-
-    if start_zone is None or end_zone is None:  # Check if either zip code is invalid
-        return 'UNMAILABLE'
+while True:
+    #This function takes in a number and then returns that number without the 0
+    def remove_leading_zeros(num):
+      
+        for i in range(len(num)):
+            if len(num) == 2:
+                return "."+ num.lstrip('0.')
+            elif len(num) > 3:
+                return num
+            else:
+                return "."+ num.lstrip('0.')+"0"
+            
+                
+    #This function takes in the length, height, and width of what the user is trying to ship and returns the package type
+    def classify_item(length, height, thickness):  # Define function to classify items based on size
+        if 3.5 <= length <= 4.25 and 3.5 <= height <= 6 and .007 <= thickness <= .016:  # Check dimensions for regular post card
+            return 'REGULAR POST CARD'
+        elif 4.25 < length <= 6 and 6 <= height <= 11.5 and .007 <= thickness <= .015:  # Check dimensions for large post card
+            return 'LARGE POST CARD'
+        elif 3.5 <= length <= 6.125 and 5 <= height <= 11.5 and .016 <= thickness <= .25:  # Check dimensions for envelope
+            return 'ENVELOPE'
+        elif 6.125 < length <= 24 and 11 <= height <= 18 and .25 < thickness <= .5:  # Check dimensions for large envelope
+            return 'LARGE ENVELOPE'
+        elif (length + height*2 + thickness*2) <= 84:  # Check perimeter dimensions for package
+            return 'PACKAGE'
+        elif 84 < (length + height*2 + thickness*2) <= 130:  # Check perimeter dimensions for large package
+            return 'LARGE PACKAGE'
+        else:  # For items that don't fit any category
+            return 'UNMAILABLE'
     
-    zones_travelled = abs(end_zone - start_zone)  # Calculate number of zones travelled
+    #This function takes in a zipcode and returned what zone it is in
+    def find_zone(zip_code):  # Define function to determine postal zone from zip code
+        zip_code = int(zip_code)  # Convert zip_code to an integer
+        if 1 <= zip_code <= 6999:  # Zone 1 range
+            return 1
+        elif 7000 <= zip_code <= 19999:  # Zone 2 range
+            return 2
+        elif 20000 <= zip_code <= 35999:  # Zone 3 range
+            return 3
+        elif 36000 <= zip_code <= 62999:  # Zone 4 range
+            return 4
+        elif 63000 <= zip_code <= 84999:  # Zone 5 range
+            return 5
+        elif 85000 <= zip_code <= 99999:  # Zone 6 range
+            return 6
+        else:  # Invalid zip_code
+            return None
     
-    # Calculate postage based on item class and zones traveled
-    if item_class == 'REGULAR POST CARD': 
-        return round(0.20 + 0.03 * zones_travelled, 2)
-    elif item_class == 'LARGE POST CARD':
-        return round(0.37 + 0.03 * zones_travelled, 2)
-    elif item_class == 'ENVELOPE':
-        return round(0.37 + 0.04 * zones_travelled, 2)
-    elif item_class == 'LARGE ENVELOPE':
-        return round(0.60 + 0.05 * zones_travelled, 2)
-    elif item_class == 'PACKAGE':
-        return round(2.95 + 0.25 * zones_travelled, 2)
-    elif item_class == 'LARGE PACKAGE':
-        return round(3.95 + 0.35 * zones_travelled, 2)
-    else:  # Return 'UNMAILABLE' for unknown classifications
-        return 'UNMAILABLE'
-
-inputs = input()  # Get user input
-length, height, thickness, start_zip, end_zip = [x.strip() for x in inputs.split(",")]  # Sort and clean the input, by seperating the input after each comma, strips any whitespace from each item in the list, then assigns each variable the correct value
-
-length = float(length)  # Convert length to float
-height = float(height)  # Convert height to float
-thickness = float(thickness)  # Convert thickness to float
-
-print(remove_leading_zeros(str(postage_calculator(length, height, thickness, start_zip, end_zip))))  # Display postage
+    #This function takes in the variables length, height, thickness, start_zip, and end_zip  and return the price of shipping 
+    def postage_calculator(length, height, thickness, start_zip, end_zip):  # Define function to calculate postage
+        item_class = classify_item(length, height, thickness)  # Determine the item class based on dimensions
+        start_zone = find_zone(start_zip)  # Determine the starting zone
+        end_zone = find_zone(end_zip)  # Determine the ending zone
+    
+        if start_zone is None or end_zone is None:  # Check if either zip code is invalid
+            return 'UNMAILABLE'
+        
+        zones_travelled = abs(end_zone - start_zone)  # Calculate number of zones travelled
+        
+        # Calculate postage based on item class and zones traveled
+        if item_class == 'REGULAR POST CARD': 
+            return float(0.20 + 0.03 * zones_travelled)
+        elif item_class == 'LARGE POST CARD':
+            return float(0.37 + 0.03 * zones_travelled)
+        elif item_class == 'ENVELOPE':
+            return float(0.37 + 0.04 * zones_travelled)
+        elif item_class == 'LARGE ENVELOPE':
+            return float(0.60 + 0.05 * zones_travelled)
+        elif item_class == 'PACKAGE':
+            return float(2.95 + 0.25 * zones_travelled)
+        elif item_class == 'LARGE PACKAGE':
+            return float(3.95 + 0.35 * zones_travelled)
+        else:  # Return 'UNMAILABLE' for unknown classifications
+            return 'UNMAILABLE'
+    
+    inputs = input()  # Get user input
+    length, height, thickness, start_zip, end_zip = [x.strip() for x in inputs.split(",")]  # Sort and clean the input, by seperating the input after each comma, strips any whitespace from each item in the list, then assigns each variable the correct value
+    
+    length = float(length)  # Convert length to float
+    height = float(height)  # Convert height to float
+    thickness = float(thickness)  # Convert thickness to float
+    
+    print(remove_leading_zeros(str(postage_calculator(length, height, thickness, start_zip, end_zip))))  # Display postage
