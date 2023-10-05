@@ -109,15 +109,17 @@ def main():
     print("Player 1, place your ships:")
     place_ship(board1, NUMBER_OF_SHIPS)
     print("Switching to Player 2...")
-    time.sleep(3)  # Pause before switching players
+    time.sleep(1)
     print("\n" * 50)
-
+    time.sleep(3)  # Pause before switching players
+    
     # Let Player 2 place their ships
     print("Player 2, place your ships:")
     place_ship(board2, NUMBER_OF_SHIPS)
     print("Switching to Player 1...")
-    time.sleep(3)
+    time.sleep(1)
     print("\n" * 50)
+    time.sleep(3)
 
     # Game loop for players to take turns guessing
     while True:
