@@ -1,3 +1,4 @@
+
 import time
 import random
 
@@ -47,7 +48,7 @@ def place_ship(board, number_of_ships=3):
                     ships_placed += 1
                     if ships_placed == number_of_ships:
                         print_board(board)
-                        print("All ships placed! The computer is ready to guess...")
+                        print("All ships placed! switching...")
                         time.sleep(3)
                 else:
                     print("Spot already occupied. Choose a different spot.")
@@ -133,20 +134,22 @@ def main():
 
     print("Player 1, place your ships:")
     place_ship(board1, 3)
-    print("Computer is placing ships...")
-    computer_place_ship(board2, 3)
-    time.sleep(2)
     print("\n" * 50)
 
     if game_mode == "1":
         print("Player 2, place your ships:")
         place_ship(board2, 3)
     else:
+        print("Computer is placing ships...")
+        computer_place_ship(board2, 3)
+        time.sleep(2)
+        
         print("Switching to Player 1...")
         time.sleep(1)
         print("\n" * 50)
 
     while True:
+        print("\n" * 50)
         print("Player 1's turn to guess:")
         if guess_ship_location(board1, board2, previous_guesses_1, 3):
             print("Player 1 wins!")
@@ -156,6 +159,7 @@ def main():
         print("\n" * 50)
 
         if game_mode == "1":
+            print("\n" * 50)
             print("Player 2's turn to guess:")
             if guess_ship_location(board2, board1, previous_guesses_2, 3):
                 print("Player 2 wins!")
