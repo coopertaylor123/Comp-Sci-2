@@ -47,6 +47,7 @@
             return true;
         }
 
+
         function validateLength(input) {
             const isValid = checkIfNumberIsValid(parseFloat(input.value));
             showValidationResult('lengthValid', isValid);
@@ -80,7 +81,10 @@
                 element.className = "redBox";
             }
         }
-
+        function removeLeadingZeros(num) {
+            let num2 = parseFloat(num).toFixed(2);
+            return num2.startsWith("0.") ? num2.substring(1) : num2;
+        }
         function computePostage() {
             let lengthValue = parseFloat(document.getElementById("lengthInput").value);
             let heightValue = parseFloat(document.getElementById("heightInput").value);
@@ -110,7 +114,9 @@
                 finalCost = 'UNMAILABLE';
             }
 
-            document.getElementById("resultText").textContent = "Postage Cost: $" + (typeof finalCost === 'number' ? finalCost.toFixed(2) : finalCost);
+            
+            let finalCostDisplay = (typeof finalCost === 'number') ? removeLeadingZeros(finalCost.toFixed(2)) : finalCost;
+            document.getElementById("resultText").textContent = "Postage Cost: $" + finalCostDisplay;
         }
 
         function classifyItemBySize(length, height, thickness) {
@@ -152,3 +158,4 @@
 </body>
 
 </html>
+
