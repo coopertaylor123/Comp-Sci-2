@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+// Author: Cooper Taylor
+// Date Finished: 10/30/2023
+// Description: After putting in dimensions, and start and end zip code it return the cost of the shipment.
+// Bugs: None
+// Challenges: N/A
+// Sources: None
+
+<head>
+    <meta charset="UTF-8">
+    <title>Postage Calculator</title>
+    <style>
+                /* Styles for the validation indicator boxes */
+
+        .greenBox {
+            background-color: green;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+        }
+
+        .redBox {
+            background-color: red;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Postage Calculator</h2>
+    <!-- Input fields with onkeyup event handlers to trigger validation -->
+
+    Length: <input type="text" id="lengthInput" onkeyup="validateLength(this)"><span id="lengthValid" class="redBox"></span><br><br>
+    Height: <input type="text" id="heightInput" onkeyup="validateHeight(this)"><span id="heightValid" class="redBox"></span><br><br>
+    Thickness: <input type="text" id="thicknessInput" onkeyup="validateThickness(this)"><span id="thicknessValid" class="redBox"></span><br><br>
+    Start Zip: <input type="text" id="startZipInput" onkeyup="validateStartZip(this)"><span id="startZipValid" class="redBox"></span><br><br>
+    End Zip: <input type="text" id="endZipInput" onkeyup="validateEndZip(this)"><span id="endZipValid" class="redBox"></span><br><br>
+    <button onclick="computePostage()">Calculate</button>
+
+    <h3>Result:</h3>
+    <p id="resultText">Result will show here.</p>
+
+    <script>
+        /**
+         * Validates if the provided number is positive and not NaN.
+         * @param {number} num - The number to validate.
+         * @returns {boolean} - Whether the number is valid.
+         */
+        function checkIfNumberIsValid(number) {
+            return !isNaN(number) && number > 0;
+        }
+/**
+         * Validates if the provided string is a valid 5-digit ZIP code.
+         * @param {string} zip - The ZIP code to validate.
+         * @returns {boolean} - Whether the ZIP code is valid.
+         */
+        function checkZipIsValid(zip) {
+            if (zip.length !== 5) return false;
+            for (let i = 0; i < zip.length; i++) {
+                if (isNaN(zip[i])) return false;
+            }
+            return true;
+        }
+
+// Input validation functions for length, height, thickness, and ZIP codes
+        function validateLength(input) {
+            const isValid = checkIfNumberIsValid(parseFloat(input.value));
+            showValidationResult('lengthValid', isValid);
+        }
+
+        function validateHeight(input) {
+            const isValid = checkIfNumberIsValid(parseFloat(input.value));
+            showValidationResult('heightValid', isValid);
+        }
+
+        function validateThickness(input) {
+            const isValid = checkIfNumberIsValid(parseFloat(input.value));
+            showValidationResult('thicknessValid', isValid);
+        }
+
+        function validateStartZip(input) {
+            const isValid = checkZipIsValid(input.value);
+            showValidationResult('startZipValid', isValid);
+        }
+
+        function validateEndZip(input) {
+            const isValid = checkZipIsValid(input.value);
+            showValidationResult('endZipValid', isValid);
+        }
+        /**
+         * Updates the class of the span element to reflect the validation result.
+         * @param {string} elementId - The ID of the span element.
+         * @param {boolean} isValid - Whether the related input is valid.
+         */
+        function showValidationResult(elementId, isValid) {
+            const element = document.getElementById(elementId);
+            if (isValid) {
+                element.className = "greenBox";
+            } else {
+                element.className = "redBox";
+            }
+        }
+        //Removes the leading zero of the price and puts it into proper currency formatt
+        function removeLeadingZeros(num) {
+            let num2 = parseFloat(num).toFixed(2);
+            return num2.startsWith("0.") ? num2.substring(1) : num2;
+        }
+        // Computes the postage cost based on input values
+        function computePostage() {
+            // Retrieve and parse input values
+            let lengthValue = parseFloat(document.getElementById("lengthInput").value);
+            let heightValue = parseFloat(document.getElementById("heightInput").value);
+            let thicknessValue = parseFloat(document.getElementById("thicknessInput").value);
+            let startZipValue = document.getElementById("startZipInput").value;
+            let endZipValue = document.getElementById("endZipInput").value;
+            // Retrieve and parse input values
+            let itemCategory = classifyItemBySize(lengthValue, heightValue, thicknessValue);
+            let startingZone = determinePostalZone(startZipValue);
+            let endingZone = determinePostalZone(endZipValue);
+            let totalZones = Math.abs(endingZone - startingZone) + 1;
+             /**
+            * Calculates the cost of postage based on the item category and total zones.
+            * @param {string} itemCategory - The category of the postal item.
+            * @param {number} totalZones - The number of zones to ship through.
+            * @returns {number|string} - The cost of postage or an error message if inputs are invalid.
+            */
+            let finalCost = 0;
+            if (itemCategory === 'REGULAR POST CARD') {
+                finalCost = 0.20 + 0.03 * totalZones;
+            } else if (itemCategory === 'LARGE POST CARD') {
+                finalCost = 0.37 + 0.03 * totalZones;
+            } else if (itemCategory === 'ENVELOPE') {
+                finalCost = 0.37 + 0.04 * totalZones;
+            } else if (itemCategory === 'LARGE ENVELOPE') {
+                finalCost = 0.60 + 0.05 * totalZones;
+            } else if (itemCategory === 'PACKAGE') {
+                finalCost = 2.95 + 0.25 * totalZones;
+            } else if (itemCategory === 'LARGE PACKAGE') {
+                finalCost = 3.95 + 0.35 * totalZones;
+            } else {
+                finalCost = 'UNMAILABLE';
+            }
+
+            
+            let finalCostDisplay = (typeof finalCost === 'number') ? removeLeadingZeros(finalCost.toFixed(2)) : finalCost;
+            document.getElementById("resultText").textContent = "Postage Cost: $" + finalCostDisplay;
+        }
+        /**
+         * Classifies the item by size into various postal categories.
+         * @param {number} length - The length of the item.
+         * @param {number} height - The height of the item.
+         * @param {number} thickness - The thickness of the item.
+         * @returns {string} - The category of the postal item.
+         */
+        function classifyItemBySize(length, height, thickness) {
+            if (length >= 3.5 && length <= 4.25 && height >= 3.5 && height <= 6 && thickness >= 0.007 && thickness <= 0.016) {
+                return 'REGULAR POST CARD';
+            } else if (length > 4.25 && length <= 6 && height >= 6 && height <= 11.5 && thickness >= 0.007 && thickness <= 0.015) {
+                return 'LARGE POST CARD';
+            } else if (length >= 3.5 && length <= 6.125 && height >= 5 && height <= 11.5 && thickness >= 0.016 && thickness <= 0.25) {
+                return 'ENVELOPE';
+            } else if (length > 6.125 && length <= 24 && height >= 11 && height <= 18 && thickness > 0.25 && thickness <= 0.5) {
+                return 'LARGE ENVELOPE';
+            } else if (length + height * 2 + thickness * 2 <= 84) {
+                return 'PACKAGE';
+            } else if (84 < length + height * 2 + thickness * 2 && length + height * 2 + thickness * 2 <= 130) {
+                return 'LARGE PACKAGE';
+            } else {
+                return 'UNMAILABLE';
+            }
+        }
+        /**
+         * Determines the postal zone based on the ZIP code.
+         * @param {string} zipCode - The ZIP code to determine the zone for.
+         * @returns {number} - The postal zone.
+         */
+        function determinePostalZone(zipCode) {
+            if (zipCode >= 1 && zipCode <= 6999) {
+                return 1;
+            } else if (zipCode >= 7000 && zipCode <= 19999) {
+                return 2;
+            } else if (zipCode >= 20000 && zipCode <= 35999) {
+                return 3;
+            } else if (zipCode >= 36000 && zipCode <= 62999) {
+                return 4;
+            } else if (zipCode >= 63000 && zipCode <= 84999) {
+                return 5;
+            } else if (zipCode >= 85000 && zipCode <= 99999) {
+                return 6;
+            } else {
+                return 0;
+            }
+        }
+    </script>
+</body>
+
+</html>
