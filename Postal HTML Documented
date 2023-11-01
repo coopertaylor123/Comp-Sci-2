@@ -121,7 +121,10 @@
             let itemCategory = classifyItemBySize(lengthValue, heightValue, thicknessValue);
             let startingZone = determinePostalZone(startZipValue);
             let endingZone = determinePostalZone(endZipValue);
-            let totalZones = Math.abs(endingZone - startingZone) + 1;
+            let totalZones = Math.abs(endingZone - startingZone);
+            if (totalZones === 0){
+                totalZones = 1
+            }
              /**
             * Calculates the cost of postage based on the item category and total zones.
             * @param {string} itemCategory - The category of the postal item.
@@ -147,7 +150,7 @@
 
             
             let finalCostDisplay = (typeof finalCost === 'number') ? removeLeadingZeros(finalCost.toFixed(2)) : finalCost;
-            document.getElementById("resultText").textContent = "Postage Cost: $" + finalCostDisplay;
+            document.getElementById("resultText").textContent = "" + finalCostDisplay;
         }
         /**
          * Classifies the item by size into various postal categories.
