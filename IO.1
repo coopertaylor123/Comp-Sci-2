@@ -1,0 +1,155 @@
+import pandas as pd
+import csv
+from pathlib import Path
+import matplotlib.pyplot as pltNon
+
+# Function to read the CSV file into a DataFrame
+def load_data(file_path):
+    return pd.read_csv(file_path)
+
+# Function to count the total number of students by grade
+def count_students_by_grade(dataframe, grade):
+    return dataframe[dataframe['Current Grade'] == grade].shape[0]
+
+# Placeholder function for making decisions using data
+def make_decision(dataframe):
+    # Example: This function would be implemented based on available data and user requirements
+    return "Decision-making function placeholder."
+
+# Function to make simple selections from the data
+def select_students_by_city(dataframe, city):
+    return dataframe[dataframe['City'] == city]
+
+# Function to make complex selections from the data using several criteria
+import numpy as np
+
+def select_by_criteria(dataframe, **criteria):
+    selection = dataframe
+    for key, value in criteria.items():
+        if value.lower() == 'none':
+            # Check for NaN (null) values
+            selection = selection[selection[key].isna()]
+        elif selection[key].dtype == 'object':  # assuming object columns are strings
+            # Apply case-insensitive filtering for non-null strings
+            selection = selection[selection[key].str.strip().str.lower() == value.strip().lower()]
+        else:
+            # Apply filter as-is for other data types
+            selection = selection[selection[key] == value]
+        print(f"After applying filter '{key} == {value}':\n{selection}\n")  # Debug output
+    return selection
+
+
+# Function to add new data records to the database
+def append_student(dataframe, student_data):
+    return dataframe.append(student_data, ignore_index=True)
+
+# Function to update and change information in fields in records
+def update_record(dataframe, index, column, new_value):
+    dataframe.at[index, column] = new_value
+    return dataframe
+
+# Function to delete records from database
+def delete_record(dataframe, index):
+    return dataframe.drop(index=index).reset_index(drop=True)
+
+# Function to list students sorted by last name
+def list_students_sorted(dataframe):
+    return dataframe.sort_values(by='Last Name')
+
+# Function to create and display graphs with data
+def create_graph(dataframe, column):
+    counts = dataframe[column].value_counts()
+    counts.plot(kind='bar')
+    plt.show()
+
+# Define a main function to run the program
+def main():
+    # Prompt the user for the file path
+    file_path = input("Please enter the path to the CSV file: ")
+    # Load the data
+    try:
+        data = load_data(file_path)
+    except Exception as e:
+        print(f"An error occurred while loading the file: {e}")
+        return
+
+    # Menu of actions
+    actions = {
+        '1': 'Count students by grade',
+        '2': 'Make decisions using data',
+        '3': 'Make simple selections from the data',
+        '4': 'Make complex selections from the data using several criteria',
+        '5': 'Add new data records to the database',
+        '6': 'Update and change information in fields in records of the database',
+        '7': 'Delete records from database',
+        '8': 'List students by firstname, lastname sorted by last name',
+        '9': 'Create graphs with data',
+        '10': 'Exit'
+    }
+
+    while True:
+        print("\nAvailable actions:")
+        for key, value in actions.items():
+            print(f"{key}: {value}")
+
+        choice = input("Please choose an action: ")
+
+        if choice == '10':
+            print("Exiting program.")
+            break
+        elif choice in actions:
+            # Execute the chosen action
+            if choice == '1':
+                grade = input("Enter the grade to count: ")
+                count = count_students_by_grade(data, grade)
+                print(f"There are {count} students in grade {grade}")
+            elif choice == '2':
+                print(make_decision(data))
+            elif choice == '3':
+                city = input("Enter the city to select students: ")
+                selected_students = select_students_by_city(data, city)
+                print(selected_students)
+            elif choice == '4':
+                criteria = {}
+                print("Available unique values for reference:")
+                for column in data.columns:
+                    print(f"{column}: {data[column].unique()}")
+                print("\nEnter the criteria for selection (type 'done' when finished):")
+                while True:
+                    key = input("Enter the criteria field (or 'done' to finish): ").strip()
+                    if key.lower() == 'done':
+                        break
+                    value = input(f"Enter the value for {key}: ").strip()
+                    criteria[key] = value
+                selected_students = select_by_criteria(data, **criteria)
+                print(selected_students if not selected_students.empty else "No matching records found.")
+
+
+            elif choice == '5':
+                student_data = {}
+                for column in data.columns:
+                    student_data[column] = input(f"Enter {column}: ")
+                data = append_student(data, student_data)
+                print("Student added successfully.")
+            elif choice == '6':
+                index = int(input("Enter the index of the record to update: "))
+                column = input("Enter the column of the record to update: ")
+                new_value = input("Enter the new value: ")
+                data = update_record(data, index, column, new_value)
+                print("Record updated successfully.")
+            elif choice == '7':
+                index = int(input("Enter the index of the record to delete: "))
+                data = delete_record(data, index)
+                print("Record deleted successfully.")
+            elif choice == '8':
+                sorted_data = list_students_sorted(data)
+                print(sorted_data)
+            elif choice == '9':
+                column = input("Enter the column to create a graph for: ")
+                create_graph(data, column)
+        else:
+            print("Invalid choice, please try again.")
+
+# Run the main function if the script is executed
+if __name__ == "__main__":
+    main()
