@@ -1,0 +1,165 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Function to read the CSV file into a DataFrame
+def load_data(file_path):
+    return pd.read_csv(file_path)
+
+# Function to count the total number of students by grade
+def count_students_by_grade(dataframe, grade):
+    return dataframe[dataframe['Current Grade'] == grade].shape[0]
+
+# Function to compare percentages based on student characteristics
+def compare_percentage_by_characteristic(dataframe):
+    characteristic = input("Enter the characteristic to compare (e.g., 'Current Grade', 'City', 'Advisor'): ")
+
+    if characteristic not in dataframe.columns:
+        return f"The characteristic '{characteristic}' is not found in the data."
+
+    value1 = input(f"Enter the first value for {characteristic} to compare: ")
+    value2 = input(f"Enter the second value for {characteristic} to compare: ")
+
+    total_students = len(dataframe)
+
+    count_value1 = dataframe[dataframe[characteristic] == value1].shape[0]
+    count_value2 = dataframe[dataframe[characteristic] == value2].shape[0]
+
+    if total_students == 0:
+        return "There are no students in the dataset."
+
+    percent_value1 = (count_value1 / total_students) * 100
+    percent_value2 = (count_value2 / total_students) * 100
+
+    if percent_value1 > percent_value2:
+        return f"A higher percentage of students ({percent_value1:.2f}%) have {value1} for {characteristic} compared to {percent_value2:.2f}% for {value2}."
+    elif percent_value1 < percent_value2:
+        return f"A higher percentage of students ({percent_value2:.2f}%) have {value2} for {characteristic} compared to {percent_value1:.2f}% for {value1}."
+    else:
+        return f"The percentage of students is the same ({percent_value1:.2f}%) for both values of {characteristic}: {value1} and {value2}."
+
+# Function to make simple selections from the data
+def select_students_by_city(dataframe, city):
+    return dataframe[dataframe['City'] == city]
+
+# Function to make complex selections from the data using several criteria
+def select_by_criteria(dataframe, **criteria):
+    selection = dataframe
+    for key, value in criteria.items():
+        if value.lower() == 'none':
+            selection = selection[selection[key].isna()]
+        elif selection[key].dtype == 'object':
+            selection = selection[selection[key].str.strip().str.lower() == value.strip().lower()]
+        else:
+            selection = selection[selection[key] == value]
+    return selection
+
+# Function to add new data records to the database
+def append_student(dataframe, student_data):
+    return dataframe.append(student_data, ignore_index=True)
+
+# Function to update and change information in fields in records
+def update_record(dataframe, index, column, new_value):
+    dataframe.at[index, column] = new_value
+    return dataframe
+
+# Function to delete records from database
+def delete_record(dataframe, index):
+    return dataframe.drop(index=index).reset_index(drop=True)
+
+# Function to list students sorted by last name
+def list_students_sorted(dataframe):
+    return dataframe.sort_values(by='Last Name')
+
+# Function to create and display graphs with data
+def create_graph(dataframe, column):
+    counts = dataframe[column].value_counts()
+    counts.plot(kind='bar')
+    plt.show()
+
+# Padding function for string formatting
+def pad_string(input_string, total_length, pad_char=' '):
+    return input_string.ljust(total_length, pad_char)
+
+# Define a main function to run the program
+def main():
+    file_path = input("Please enter the path to the CSV file: ")
+    try:
+        data = load_data(file_path)
+        print(f"Available columns in the data: {data.columns.tolist()}")
+    except Exception as e:
+        print(f"An error occurred while loading the file: {e}")
+        return
+
+    actions = {
+        '1': 'Count students by grade',
+        '2': 'Compare percentages by characteristic',
+        '3': 'Look for students by city/town',
+        '4': 'Make complex selections from the data using several criteria',
+        '5': 'Add new data records to the database',
+        '6': 'Update and change information in fields in records of the database',
+        '7': 'Delete records from database',
+        '8': 'List students by firstname, lastname sorted by last name',
+        '9': 'Create graphs with data',
+        '10': 'Exit'
+    }
+
+    while True:
+        print("\nAvailable actions:")
+        for key, value in actions.items():
+            print(f"{key}: {value}")
+
+        choice = input("Please choose an action: ")
+
+        if choice == '10':
+            print("Exiting program.")
+            break
+        elif choice == '1':
+            grade = input("Enter the grade to count: ")
+            count = count_students_by_grade(data, grade)
+            print(f"There are {count} students in grade {grade}")
+        elif choice == '2':
+            result = compare_percentage_by_characteristic(data)
+            print(result)
+        elif choice == '3':
+            city = input("Enter the city to select students: ")
+            selected_students = select_students_by_city(data, city)
+            print(selected_students)
+        elif choice == '4':
+            criteria = {}
+            print("Enter the criteria for selection (type 'done' when finished):")
+            while True:
+                key = input("Enter the criteria field (or 'done' to finish): ").strip()
+                if key.lower() == 'done':
+                    break
+                value = input(f"Enter the value for {key}: ").strip()
+                criteria[key] = value
+            selected_students = select_by_criteria(data, **criteria)
+            print(selected_students if not selected_students.empty else "No matching records found.")
+        elif choice == '5':
+            student_data = {}
+            for column in data.columns:
+                student_data[column] = input(f"Enter {column}: ")
+            data = append_student(data, student_data)
+            print("Student added successfully.")
+        elif choice == '6':
+            index = int(input("Enter the index of the record to update: "))
+            column = input("Enter the column of the record to update: ")
+            new_value = input("Enter the new value: ")
+            data = update_record(data, index, column, new_value)
+            print("Record updated successfully.")
+        elif choice == '7':
+            index = int(input("Enter the index of the record to delete: "))
+            data = delete_record(data, index)
+            print("Record deleted successfully.")
+        elif choice == '8':
+            sorted_data = list_students_sorted(data)
+            print(sorted_data)
+        elif choice == '9':
+            column = input("Enter the column to create a graph for: ")
+            create_graph(data, column)
+        else:
+            print("Invalid choice, please try again.")
+
+if __name__ == "__main__":
+    main()
