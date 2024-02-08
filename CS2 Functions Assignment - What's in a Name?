@@ -1,0 +1,166 @@
+# CS2 Functions Assignment - What's in a Name?
+
+# Declare functions
+def reverse_display(name):
+    """
+    Reverses an array of characters and displays it as a string.
+    """
+    reversed_name = ""
+    for i in range(len(name)-1, -1, -1):
+        reversed_name += name[i]
+    return reversed_name
+
+def count_vowels(name, vowel=""):
+    """
+    Counts the number of vowels in an array of characters.
+    If a vowel is specified, only counts that vowel.
+    """
+    count = 0
+    for letter in name:
+        if vowel != "":
+            if letter.lower() == vowel.lower():
+                count += 1
+        elif letter.lower() in ["a", "e", "i", "o", "u"]:
+            count += 1
+    return count
+
+def count_consonants(name, consonant=""):
+    """
+    Counts the number of consonants in an array of characters.
+    If a consonant is specified, only counts that consonant.
+    """
+    count = 0
+    for letter in name:
+        if consonant != "":
+            if letter.lower() == consonant.lower():
+                count += 1
+        elif letter.lower() not in ["a", "e", "i", "o", "u"]:
+            count += 1
+    return count
+
+def get_first_name(name):
+    """
+    Returns the first name from an array of characters.
+    Assumes that the first name is the first word in the array.
+    """
+    first_name = ""
+    for letter in name:
+        if letter != " ":
+            first_name += letter
+        else:
+            break
+    return first_name
+
+def get_last_name(name):
+    """
+    Returns the last name from an array of characters.
+    Assumes that the last name is the last word in the array.
+    """
+    last_name = ""
+    for i in range(len(name)-1, -1, -1):
+        if name[i] != " ":
+            last_name = name[i] + last_name
+        else:
+            break
+    return last_name
+
+def get_middle_names(name):
+    """
+    Returns the middle name(s) from an array of characters.
+    Assumes that the middle name(s) are the word(s) between the first and last names.
+    """
+    middle_names = ""
+    first_space = name.index(" ")
+    last_space = name.rindex(" ")
+    if first_space != last_space:
+        middle_names = name[first_space:last_space].strip()
+    return middle_names
+
+def has_hyphen(name):
+    """
+    Returns a boolean indicating whether the last name contains a hyphen.
+    """
+    last_name = get_last_name(name)
+    return "-" in last_name
+
+def to_lower(name):
+    """
+    Converts an array of characters to lowercase.
+    """
+    lower_name = ""
+    for letter in name:
+        lower_name += letter.lower()
+    return lower_name
+
+def to_upper(name):
+    """
+    Converts an array of characters to uppercase.
+    """
+    upper_name = ""
+    for letter in name:
+        upper_name += letter.upper()
+    return upper_name
+
+def random_name(name):
+    """
+    Modifies an array of characters to create a random name
+    by mixing up the letters.
+    """
+    import random
+    name_list = list(name)
+    random.shuffle(name_list)
+    return "".join(name_list)
+
+def is_palindrome(name):
+    """
+    Returns a boolean indicating whether the first name is a palindrome.
+    """
+    first_name = get_first_name(name)
+    return first_name.lower() == first_name.lower()[::-1]
+
+def sorted_name(name):
+    """
+    Returns the full name as a sorted array of characters.
+    """
+    sorted_name = "".join(sorted(name))
+    return sorted_name
+
+def make_initials(name):
+    """
+    Returns the initials of the name as a string.
+    """
+    initials = ""
+    words = name.split()
+    for word in words:
+        initials += word[0]
+    return initials
+
+def has_title(name):
+    """
+    Returns a boolean indicating whether the name contains a title/distinction.
+    """
+    titles = ["Dr.", "Sir", "Esq", "Ph.d"] # add more titles if needed
+    for title in titles:
+        if title in name:
+            return True
+    return False
+
+# Test functions
+user_input = input("Enter your name or a word: ")
+print("Original:", user_input)
+print("Reversed and displayed:", reverse_display(user_input))
+print("Number of vowels:", count_vowels(user_input))
+print("Number of 'e's:", count_vowels(user_input, "e"))
+print("Number of consonants:", count_consonants(user_input))
+print("Number of 't's:", count_consonants(user_input, "t"))
+print("First name:", get_first_name(user_input))
+print("Last name:", get_last_name(user_input))
+print("Middle name(s):", get_middle_names(user_input))
+print("Has hyphen in last name:", has_hyphen(user_input))
+print("Lowercase:", to_lower(user_input))
+print("Uppercase:", to_upper(user_input))
+print("Random name:", random_name(user_input))
+print("Is first name a palindrome:", is_palindrome(user_input))
+print("Sorted name:", sorted_name(user_input))
+print("Initials:", make_initials(user_input))
+print("Has title/distinction:", has_title(user_input))
