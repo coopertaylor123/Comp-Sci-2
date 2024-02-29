@@ -1,0 +1,147 @@
+def manual_lower(letter):
+    #Manually converts a letter to lowercase if it's uppercase 
+    if 'A' <= letter <= 'Z':
+        return chr(ord(letter) + 32)
+    return letter
+
+def manual_upper(letter):
+    #Manually converts a letter to uppercase if it's lowercase 
+    if 'a' <= letter <= 'z':
+        return chr(ord(letter) - 32)
+    return letter
+
+def is_vowel(letter):
+    #Checks if a letter is a vowel 
+    lower_letter = manual_lower(letter)
+    return lower_letter in "aeiou"
+
+def is_consonant(letter):
+    #Checks if a letter is a consonant 
+    lower_letter = manual_lower(letter)
+    return 'a' <= lower_letter <= 'z' and not is_vowel(letter)
+
+def reverse_display(name):
+    #Reverses an array of characters and displays it as a string 
+    return name[::-1]
+
+def count_vowels(name):
+    #Counts the number of vowels in an array of characters 
+    return sum(1 for letter in name if is_vowel(letter))
+
+def count_consonants(name):
+    #Counts the number of consonants in an array of characters 
+    return sum(1 for letter in name if is_consonant(letter))
+
+def parse_name_components(name):
+    """
+    Parses the name into components: title (if any), first name, middle name(s), and last name.
+    Titles are considered to be 'Dr', 'Sir', 'Esq', 'PhD'
+    """
+    titles = {"Dr", "Sir", "Esq", "PhD"}
+    parts = name.split()
+
+    title = parts.pop(0) if parts and parts[0] in titles else None
+
+    if len(parts) > 2:
+        first_name = parts[0]
+        middle_names = ' '.join(parts[1:-1])
+        last_name = parts[-1]
+    elif len(parts) == 2:
+        first_name, last_name = parts
+        middle_names = None
+    else:
+        first_name = parts[0] if parts else None
+        middle_names = last_name = None
+
+    return title, first_name, middle_names, last_name
+
+def get_first_name(name):
+    _, first_name, _, _ = parse_name_components(name)
+    return first_name
+
+def get_middle_names(name):
+    _, _, middle_names, _ = parse_name_components(name)
+    return middle_names if middle_names else ''
+
+def get_last_name(name):
+    _, _, _, last_name = parse_name_components(name)
+    return last_name if last_name else ''
+
+def has_title(name):
+    title, _, _, _ = parse_name_components(name)
+    return bool(title)
+
+def has_hyphen(name):
+    #Returns a boolean indicating whether the last name contains a hyphen. 
+    return "-" in get_last_name(name)
+
+def to_lower(name):
+    #Converts an array of characters to lowercase 
+    return ''.join(manual_lower(letter) for letter in name)
+
+def to_upper(name):
+    #Converts an array of characters to uppercase 
+    return ''.join(manual_upper(letter) for letter in name)
+
+def random_name(name):
+    #Modifies an array of characters to create a random name by mixing up the letters 
+    from random import shuffle
+    name_list = list(name)
+    shuffle(name_list)
+    return ''.join(name_list)
+
+def is_palindrome(name):
+    #Returns a boolean indicating whether the first name is a palindrome 
+    first_name = get_first_name(name)
+    return first_name.lower() == reverse_display(first_name.lower())
+
+def sorted_name(name):
+    #Returns the full name as a sorted array of characters 
+    return ''.join(sorted(name))
+
+def make_initials(name):
+    #Returns the initials of the name as a string 
+    title, first_name, middle_names, last_name = parse_name_components(name)
+    initials = ''.join(part[0] for part in [first_name] + (middle_names.split() if middle_names else []) + ([last_name] if last_name else []) if part)
+    return (title[0] + ". " if title else "") + initials
+
+def analyze_name(name):
+    #Analyzes a name to provide the length, a count of each letter, and the most frequent letters 
+    letter_count = {}
+    for letter in name.replace(" ", ""):
+        letter = manual_lower(letter)
+        letter_count[letter] = letter_count.get(letter, 0) + 1
+    length_of_name = len(name.replace(" ", ""))
+    most_frequent = max(letter_count.values(), default=0)
+    most_frequent_letters = [letter for letter, count in letter_count.items() if count == most_frequent]
+    return {
+        "Length": length_of_name,
+        "Letter Count": letter_count,
+        "Most Frequent Letters": most_frequent_letters
+    }
+
+def execute_all_functions(name):
+    print(f"Original Name: {name}")
+    print("Reversed and Displayed:", reverse_display(name))
+    print("Number of Vowels:", count_vowels(name))
+    print("Number of Consonants:", count_consonants(name))
+    print("First Name:", get_first_name(name))
+    print("Middle Names:", get_middle_names(name))
+    print("Last Name:", get_last_name(name))
+    print("Contains Title/Distinction:", has_title(name))
+    print("Contains Hyphen in Last Name:", has_hyphen(name))
+    print("Lowercase Version:", to_lower(name))
+    print("Uppercase Version:", to_upper(name))
+    print("Randomized Name:", random_name(name))
+    print("Is First Name a Palindrome:", is_palindrome(name))
+    print("Sorted Name Characters:", sorted_name(name))
+    print("Initials:", make_initials(name))
+    analysis = analyze_name(name)
+    print("Name Analysis:")
+    print(f" Length: {analysis['Length']}")
+    print(f" Letter Count: {analysis['Letter Count']}")
+    print(f" Most Frequent Letters: {', '.join(analysis['Most Frequent Letters'])}")
+
+if __name__ == "__main__":
+    user_input = input("Enter your name: ")
+    execute_all_functions(user_input)
