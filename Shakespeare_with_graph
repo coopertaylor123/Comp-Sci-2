@@ -1,0 +1,57 @@
+import csv
+from collections import Counter
+import matplotlib.pyplot as plt
+
+# Define paths to the Shakespeare plays
+play1_path = r"C:\Users\coope\Downloads\CS-2 Work\shakespeare_midsummernightsdream.txt" # Update this with the actual path
+play2_path = r"C:\Users\coope\Downloads\CS-2 Work\shakespeare_macbeth.txt"  # Update this with the actual path
+
+def read_play(filepath):
+    # Reads a play and returns a list of words
+    with open(filepath, 'r', encoding='utf-8') as file:
+        text = file.read().lower()
+    # Remove characters that are not alphabets or spaces
+    filtered_text = ''.join(filter(lambda char: char.isalpha() or char.isspace(), text))
+    words = filtered_text.split()
+    return words
+
+def cleanse_words(word_list):
+    # Removes non-descriptive words and converts all words to lowercase 
+    non_descriptive_words = {'and', 'or', 'i', 'the', 'to', 'of', 'a'}  # Add or remove as needed
+    cleansed_list = [word for word in word_list if word not in non_descriptive_words]
+    return cleansed_list
+
+# Combine words from both plays, cleanse the combined list, then count the occurrences
+words_list = cleanse_words(read_play(play1_path) + read_play(play2_path))
+word_counts = Counter(words_list)
+
+# Write the word counts to a CSV file
+csv_path = 'word_counts.csv'
+with open(csv_path, 'w', newline='', encoding='utf-8') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(['Word', 'Count'])  # Header
+    for word, count in word_counts.items():
+        writer.writerow([word, count])
+
+print(f'Word counts have been written to {csv_path}')
+
+# Function to create a pie chart from the CSV
+def create_pie_chart(csv_file_path):
+    # Read the word counts from the CSV file
+    words = []
+    counts = []
+    with open(csv_file_path, 'r', encoding='utf-8') as file:
+        csv_reader = csv.reader(file)
+        next(csv_reader)  # Skip the header row
+        for row in csv_reader:
+            words.append(row[0])
+            counts.append(int(row[1]))
+
+    # Create a pie chart
+    plt.figure(figsize=(10, 8))
+    plt.pie(counts, labels=words, autopct='%1.1f%%', startangle=140)
+    plt.title('Word Frequency Pie Chart')
+    plt.show()
+
+# Call the function to create the pie chart
+create_pie_chart(csv_path)
