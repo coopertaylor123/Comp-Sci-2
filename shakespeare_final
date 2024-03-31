@@ -1,0 +1,95 @@
+import openpyxl
+import csv
+from collections import Counter
+import matplotlib.pyplot as plt
+from os import listdir, path
+
+# Update these paths to where your Shakespeare plays are stored
+play1_path = r"C:\Users\Admin\Downloads\CS2\shakespeare_msnd.txt"
+play2_path = r"C:\Users\Admin\Downloads\CS2\shakespeare_macbeth.txt"
+# Update this path to the top-level folder that contains your dictionary CSV files
+dictionary_folder_path = r"C:\Users\Admin\Downloads\CS2\Word-lists-in-csv\Word lists in csv"
+
+def load_dictionary(folder_path):
+    dictionary = set()
+    for filename in listdir(folder_path):
+        full_path = path.join(folder_path, filename)
+        print(f"Loading words from {full_path}...")
+        if filename.endswith('.csv'):
+            try:
+                with open(full_path, 'r', encoding='utf-8') as file:
+                    csv_reader = csv.reader(file)
+                    for row in csv_reader:
+                        if row and row[0]:  # Check if the row is not empty and the first cell has content
+                            word = row[0].lower().strip()  # Convert to lowercase and remove any leading/trailing spaces
+                            dictionary.add(word)
+                            print(word)  # Debug print to show each word being added
+            except Exception as e:
+                print(f"Failed to load {filename}: {e}")
+    print(f"Total words in dictionary: {len(dictionary)}")
+    return dictionary
+
+
+def read_play(filepath):
+    with open(filepath, 'r', encoding='utf-8') as file:
+        text = file.read().lower()
+    filtered_text = ''.join(filter(lambda char: char.isalpha() or char.isspace(), text))
+    words = filtered_text.split()
+    return words
+
+def cleanse_words(word_list, dictionary):
+    non_descriptive_words = {'and', 'or', 'i', 'the', 'to', 'of', 'a'}
+    cleansed_list = [word for word in word_list if word not in non_descriptive_words and word in dictionary]
+    words_not_in_dict = [word for word in word_list if word not in non_descriptive_words and word not in dictionary]
+    return cleansed_list, len(words_not_in_dict)
+
+# Load the English dictionary
+dictionary = load_dictionary(dictionary_folder_path)
+
+# Process plays and check words against the dictionary
+words_in_dict, words_not_in_dict = cleanse_words(read_play(play1_path) + read_play(play2_path), dictionary)
+word_counts = Counter(words_in_dict)
+
+# Write word counts to CSV
+csv_path = 'word_counts.csv'
+with open(csv_path, 'w', newline='', encoding='utf-8') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(['Word', 'Count'])
+    for word, count in word_counts.most_common():  # This ensures the CSV is sorted by count
+        writer.writerow([word, count])
+
+print(f'Word counts have been written to {csv_path}.')
+total_words = len(words_in_dict) + words_not_in_dict
+print(f'{len(words_in_dict) / total_words * 100:.2f}% of words found in the dictionary.')
+print(f'{words_not_in_dict / total_words * 100:.2f}% of words not found in the dictionary.')
+
+# Function to create a pie chart for the 15 most popular words
+def create_pie_chart(csv_file_path):
+    words, counts = [], []
+    with open(csv_file_path, 'r', encoding='utf-8') as file:
+        csv_reader = csv.reader(file)
+        next(csv_reader)  # Skip the header row
+        for row in csv_reader:
+            words.append(row[0])
+            counts.append(int(row[1]))
+
+    # Process to show top 15 words and "Other"
+    if len(words) > 15:
+        sorted_counts = sorted(zip(counts, words), reverse=True)
+        top_counts, top_words = zip(*sorted_counts[:15])
+        other_count = sum(count for count, word in sorted_counts[15:])
+    else:
+        top_words = words
+        top_counts = counts
+        other_count = 0
+
+    if other_count > 0:
+        top_words += ('Other',)
+        top_counts += (other_count,)
+
+    plt.figure(figsize=(10, 8))
+    plt.pie(top_counts, labels=top_words, autopct='%1.1f%%', startangle=140)
+    plt.title('Word Frequency Pie Chart')
+    plt.show()
+
+create_pie_chart(csv_path)
