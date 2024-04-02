@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 from os import listdir, path
 
 # Update these paths to where your Shakespeare plays are stored
-play1_path = r"C:\Users\Admin\Downloads\CS2\shakespeare_msnd.txt"
-play2_path = r"C:\Users\Admin\Downloads\CS2\shakespeare_macbeth.txt"
+play1_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play1.txt"
+play2_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play2.txt"
 # Update this path to the top-level folder that contains your dictionary CSV files
-dictionary_folder_path = r"C:\Users\Admin\Downloads\CS2\Word-lists-in-csv\Word lists in csv"
+dictionary_folder_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\Word-lists-in-csv\Word lists in csv"
 
 def load_dictionary(folder_path):
     dictionary = set()
@@ -38,9 +38,9 @@ def read_play(filepath):
     return words
 
 def cleanse_words(word_list, dictionary):
-    non_descriptive_words = {'and', 'or', 'i', 'the', 'to', 'of', 'a'}
-    cleansed_list = [word for word in word_list if word not in non_descriptive_words and word in dictionary]
-    words_not_in_dict = [word for word in word_list if word not in non_descriptive_words and word not in dictionary]
+    non_descriptive_words = {'and', 'or', 'i', 'the', 'to', 'of', 'a','you','in', 'that', 'is', 'with', 'it', 'this', 'for', 'he', 'be', 'your', 'but', 'his', 'have', 'not', 'what', 'we', 'her', 'him', 'are', 'they', 'on', 'there', 'our', 'by', 'they', 'if', 'which', 'now', 'will', 'their', 'when', 'here', 'from'}
+    cleansed_list = [word for word in word_list if word not in non_descriptive_words]
+    words_not_in_dict = [word for word in word_list if word not in dictionary]
     return cleansed_list, len(words_not_in_dict)
 
 # Load the English dictionary
