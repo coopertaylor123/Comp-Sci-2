@@ -1,0 +1,177 @@
+#Author: Cooper Taylor
+import time
+import random
+
+BOARD_SIZE = 5
+WATER_EMOJI = "🌊"
+SHIP_EMOJI = "🚢"
+HIT_EMOJI = "💥"
+MISS_EMOJI = "❌"
+
+def print_board(board):
+    for row in board:
+        print(" ".join(row))
+    print()
+
+def initialize_board(size):
+    return [[WATER_EMOJI] * size for _ in range(size)]
+
+def print_instructions():
+    print(f"""
+Welcome to Battleship!
+
+Instructions:
+1. You will place a set number of ships on your board.
+2. The computer will take turns guessing where your ships are.
+3. If the computer guesses correctly, they'll sink one of your ships.
+4. The first to sink all your ships wins!
+
+Board Symbols:
+{WATER_EMOJI} - Empty
+{SHIP_EMOJI} - Your Ship
+{HIT_EMOJI} - Ship that has been hit
+{MISS_EMOJI} - Missed Guess
+
+Let's start the game!
+    """)
+
+def place_ship(board, number_of_ships=3):
+    ships_placed = 0
+    while ships_placed < number_of_ships:
+        print_board(board)
+        try:
+            ship_row = int(input(f"Choose a row (0 to {BOARD_SIZE-1}) for your ship: "))
+            ship_col = int(input(f"Choose a column (0 to {BOARD_SIZE-1}) for your ship: "))
+            if 0 <= ship_row < BOARD_SIZE and 0 <= ship_col < BOARD_SIZE:
+                if board[ship_row][ship_col] == WATER_EMOJI:
+                    board[ship_row][ship_col] = SHIP_EMOJI
+                    ships_placed += 1
+                    if ships_placed == number_of_ships:
+                        print_board(board)
+                        print("All ships placed! switching...")
+                        time.sleep(3)
+                else:
+                    print("Spot already occupied. Choose a different spot.")
+            else:
+                print("Invalid location. Please choose within the board limits.")
+        except ValueError:
+            print("Please enter valid row and column numbers.")
+
+def guess_ship_location(board, opponent_board, previous_guesses, number_of_ships=3):
+    print_board(board)
+    while True:
+        try:
+            guess_row = int(input(f"Guess Row (0 to {BOARD_SIZE-1}): "))
+            guess_col = int(input(f"Guess Col (0 to {BOARD_SIZE-1}): "))
+            if 0 <= guess_row < BOARD_SIZE and 0 <= guess_col < BOARD_SIZE:
+                if (guess_row, guess_col) not in previous_guesses:
+                    previous_guesses.add((guess_row, guess_col))
+                    if opponent_board[guess_row][guess_col] == SHIP_EMOJI:
+                        print("Congratulations! You sunk a battleship!")
+                        board[guess_row][guess_col] = HIT_EMOJI
+                        opponent_board[guess_row][guess_col] = HIT_EMOJI
+                        if sum(row.count(SHIP_EMOJI) for row in opponent_board) == 0:
+                            return True
+                    else:
+                        print("You missed!")
+                        board[guess_row][guess_col] = MISS_EMOJI
+                        time.sleep(1)
+                    break
+                else:
+                    print("You've already guessed that spot. Try a different location.")
+            else:
+                print("Oops, that's not even in the ocean.")
+        except ValueError:
+            print("Please enter valid row and column numbers.")
+    return False
+
+def computer_place_ship(board, number_of_ships=3):
+    ships_placed = 0
+    while ships_placed < number_of_ships:
+        ship_row = random.randint(0, BOARD_SIZE - 1)
+        ship_col = random.randint(0, BOARD_SIZE - 1)
+        if board[ship_row][ship_col] == WATER_EMOJI:
+            board[ship_row][ship_col] = SHIP_EMOJI
+            ships_placed += 1
+
+def computer_guess_ship_location(board, opponent_board, previous_guesses):
+    print("Computer's turn to guess:")
+    time.sleep(2)
+    while True:
+        guess_row = random.randint(0, BOARD_SIZE - 1)
+        guess_col = random.randint(0, BOARD_SIZE - 1)
+        if (guess_row, guess_col) not in previous_guesses:
+            previous_guesses.add((guess_row, guess_col))
+            if opponent_board[guess_row][guess_col] == SHIP_EMOJI:
+                print("The computer sunk one of your battleships!")
+                board[guess_row][guess_col] = HIT_EMOJI
+                opponent_board[guess_row][guess_col] = HIT_EMOJI
+                if sum(row.count(SHIP_EMOJI) for row in opponent_board) == 0:
+                    print("The computer wins!")
+                    return True
+                break  # Computer should not miss if it has sunk a ship.
+            else:
+                print("The computer missed!")
+                board[guess_row][guess_col] = MISS_EMOJI
+                time.sleep(1)
+                break
+
+def main():
+    print_instructions()
+
+    # Choose game mode after instructions
+    game_mode = ""
+    while game_mode not in ["1", "2"]:
+        game_mode = input("Play against another (1) Player or (2) Computer? ").strip()
+
+    time.sleep(0)
+    print("\n" * 50)
+
+    board1 = initialize_board(BOARD_SIZE)
+    board2 = initialize_board(BOARD_SIZE)
+    previous_guesses_1 = set()
+    previous_guesses_2 = set()
+
+    print("Player 1, place your ships:")
+    place_ship(board1, 3)
+    print("\n" * 50)
+
+    if game_mode == "1":
+        print("Player 2, place your ships:")
+        place_ship(board2, 3)
+    else:
+        print("Computer is placing ships...")
+        computer_place_ship(board2, 3)
+        time.sleep(2)
+        
+        print("Switching to Player 1...")
+        time.sleep(1)
+        print("\n" * 50)
+
+    while True:
+        print("\n" * 50)
+        print("Player 1's turn to guess:")
+        if guess_ship_location(board1, board2, previous_guesses_1, 3):
+            print("Player 1 wins!")
+            break
+        print("Switching...")
+        time.sleep(3)
+        print("\n" * 50)
+
+        if game_mode == "1":
+            print("\n" * 50)
+            print("Player 2's turn to guess:")
+            if guess_ship_location(board2, board1, previous_guesses_2, 3):
+                print("Player 2 wins!")
+                break
+        else:
+            if computer_guess_ship_location(board2, board1, previous_guesses_2):
+                print("Computer wins!")
+                break
+
+        print("Switching to Player 1...")
+        time.sleep(3)
+        print("\n" * 50)
+
+if __name__ == "__main__":
+    main()
