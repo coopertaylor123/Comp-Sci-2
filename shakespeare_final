@@ -1,12 +1,11 @@
-import openpyxl
 import csv
 from collections import Counter
 import matplotlib.pyplot as plt
 from os import listdir, path
-
-# Update these paths to where your Shakespeare plays are stored
-play1_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play1.txt"
+#play1_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play1.txt"
+#play2_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play1.txt"
 play2_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play2.txt"
+play1_path  = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\shakespeare_play2.txt"
 # Update this path to the top-level folder that contains your dictionary CSV files
 dictionary_folder_path = r"C:\Users\ctaylor26\Downloads\Comp Sci 2\Word-lists-in-csv\Word lists in csv"
 
@@ -73,23 +72,15 @@ def create_pie_chart(csv_file_path):
             words.append(row[0])
             counts.append(int(row[1]))
 
-    # Process to show top 15 words and "Other"
-    if len(words) > 15:
-        sorted_counts = sorted(zip(counts, words), reverse=True)
-        top_counts, top_words = zip(*sorted_counts[:15])
-        other_count = sum(count for count, word in sorted_counts[15:])
-    else:
-        top_words = words
-        top_counts = counts
-        other_count = 0
-
-    if other_count > 0:
-        top_words += ('Other',)
-        top_counts += (other_count,)
+    # Process to show top 15 words
+    sorted_counts = sorted(zip(counts, words), reverse=True)
+    top_counts, top_words = zip(*sorted_counts[:15])
 
     plt.figure(figsize=(10, 8))
     plt.pie(top_counts, labels=top_words, autopct='%1.1f%%', startangle=140)
     plt.title('Word Frequency Pie Chart')
     plt.show()
+
+create_pie_chart(csv_path)
 
 create_pie_chart(csv_path)
