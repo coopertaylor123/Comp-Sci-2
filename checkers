@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Apr  5 16:11:44 2024
+
+@author: coope
+"""
+
+class CheckersGame:
+    def __init__(self):
+        self.board = self.create_board()
+        self.current_turn = 'W'
+
+    def create_board(self):
+        """Initialize the game board with pieces in starting positions."""
+        board = [['.' for _ in range(8)] for _ in range(8)]
+        for row in range(8):
+            for col in range(8):
+                if (row + col) % 2 == 1:
+                    if row < 3:
+                        board[row][col] = 'B'
+                    elif row > 4:
+                        board[row][col] = 'W'
+        return board
+
+    def print_board(self):
+        """Print the current state of the board."""
+        print('  a b c d e f g h')
+        print(' +-----------------+')
+        row_number = 8
+        for row in self.board:
+            print(f'{row_number}| {" ".join(row)} |')
+            row_number -= 1
+        print(' +-----------------+')
+
+    def move_piece(self, start, end):
+        """Move a piece on the board, handling captures and king promotion."""
+        start_row, start_col = 8 - int(start[1]), ord(start[0]) - ord('a')
+        end_row, end_col = 8 - int(end[1]), ord(end[0]) - ord('a')
+
+        # Simple move or capture
+        if self.is_valid_move(start_row, start_col, end_row, end_col):
+            self.board[end_row][end_col], self.board[start_row][start_col] = self.board[start_row][start_col], '.'
+            self.check_promotion(end_row, end_col)
+            self.change_turn()
+        else:
+            print("Invalid move. Please try again.")
+            
+    def is_valid_input(self, input_str):
+        """Check if the input is in the correct format 'a1'."""
+        if len(input_str) == 2 and input_str[0].isalpha() and input_str[1].isdigit():
+            col = ord(input_str[0].lower()) - ord('a')
+            row = int(input_str[1])
+            if 0 <= col < 8 and 1 <= row <= 8:
+                return True
+        return False
+
+    def is_valid_move(self, start_row, start_col, end_row, end_col):
+        """Check if a move is valid, focusing on simple diagonal moves."""
+        piece = self.board[start_row][start_col].upper()
+        destination = self.board[end_row][end_col]
+    
+        # Check if the piece belongs to the player making the turn
+        if piece != self.current_turn:
+            return False
+    
+        # Check if the destination is empty
+        if destination != '.':
+            return False
+    
+        # Ensure the move is diagonal
+        row_diff = abs(start_row - end_row)
+        col_diff = abs(start_col - end_col)
+        if row_diff == 1 and col_diff == 1:
+            return True  # Simple diagonal move
+    
+        return False  # Not a valid move
+       
+
+    def check_promotion(self, row, col):
+        """Promote a piece to a king if it reaches the opposite side."""
+        if row == 0 and self.board[row][col] == 'W':
+            self.board[row][col] = 'WK'
+        elif row == 7 and self.board[row][col] == 'B':
+            self.board[row][col] = 'BK'
+
+    def change_turn(self):
+        """Switch turns between players."""
+        self.current_turn = 'B' if self.current_turn == 'W' else 'W'
+
+    def play(self):
+        """Main game loop."""
+        while True:
+            self.print_board()
+            while True:
+                start = input(f"{self.current_turn}'s turn. Enter move from (e.g., 'b6'): ")
+                end = input("Enter move to (e.g., 'c5'): ")
+                if self.is_valid_input(start) and self.is_valid_input(end):
+                    break
+                else:
+                    print("Invalid input format. Please use the format 'b6'.")
+            self.move_piece(start, end)
+
+# Start a game
+game = CheckersGame()
+game.play()
