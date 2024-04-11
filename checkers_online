@@ -1,0 +1,160 @@
+class CheckersGame {
+  constructor() {
+    this.board = this.createInitialBoard();
+    this.currentTurn = 'W';
+    this.selectedPiece = null;
+    this.drawBoard();
+    this.addEventListeners();
+  }
+
+  createInitialBoard() {
+    
+    let board = Array(8).fill(null).map(() => Array(8).fill('.'));
+    for (let row = 0; row < 8; row++) {
+    for (let col = (row % 2 === 0) ? 1 : 0; col < 8; col += 2) {
+    if (row < 3) board[row][col] = 'B';
+    else if (row > 4) board[row][col] = 'W';
+}
+}
+return board;
+  }
+  
+  drawBoard() {
+    
+const boardElement = document.getElementById('board');
+boardElement.innerHTML = '';
+for (let row = 0; row < 8; row++) {
+for (let col = 0; col < 8; col++) {
+const squareElement = document.createElement('div');
+squareElement.className = `square ${((row + col) % 2 === 0) ? 'white' : 'black'}`;
+const piece = this.board[row][col];
+if (piece !== '.') {
+const pieceElement = document.createElement('div');
+pieceElement.className = `piece ${piece}${piece === 'W' || piece === 'B' ? '' : 'K'}`;
+pieceElement.textContent = piece;
+squareElement.appendChild(pieceElement);
+}
+boardElement.appendChild(squareElement);
+}
+}
+  }
+
+  addEventListeners() {
+    const boardElement = document.getElementById('board');
+boardElement.addEventListener('click', this.handleBoardClick.bind(this));
+  }
+
+  handleBoardClick(event) {
+    
+    const clickedElement = event.target;
+    const pieceElement = clickedElement.classList.contains('piece') ? clickedElement : clickedElement.querySelector('.piece');
+    if (!pieceElement) return;
+
+    const clickedRow = Math.floor(Array.from(clickedElement.parentNode.children).indexOf(clickedElement) / 8);
+    const clickedCol = Array.from(clickedElement.parentNode.children).indexOf(clickedElement) % 8;
+    
+    if (this.selectedPiece) {
+      // Execute move for selected piece
+      const validMove = this.isValidMove(clickedRow, clickedCol); 
+      if (validMove) {
+        this.executeMove(clickedRow, clickedCol);
+        this.changeTurn();
+      }
+      this.clearSelection();
+    }
+    else {
+      // Select piece
+      if (this.board[clickedRow][clickedCol][0] === this.currentTurn) {
+        this.selectedPiece = {row: clickedRow, col: clickedCol};
+        this.highlightSquares(clickedRow, clickedCol);
+      }
+    }
+  }  
+
+  isValidMove(toRow, toCol) {
+    
+    const piece = this.board[this.selectedPiece.row][this.selectedPiece.col];
+    const dir = piece[1] === 'K' ? -1 : 1; // direction king vs regular piece
+    
+    // Check basic move
+    if (toRow - this.selectedPiece.row === dir && 
+        Math.abs(toCol - this.selectedPiece.col) === 1 &&
+        this.board[toRow][toCol] === '.') {
+      return true; 
+    }
+    
+    // Check jump
+    if (Math.abs(toRow - this.selectedPiece.row) === 2 &&
+        Math.abs(toCol - this.selectedPiece.col) === 2 && 
+        this.board[(toRow + this.selectedPiece.row)/2][(toCol + this.selectedPiece.col)/2][0] !== this.currentTurn &&
+        this.board[toRow][toCol] === '.') {
+      return true;
+    }
+
+    return false;
+  }
+
+  executeMove(toRow, toCol) {
+    
+    this.board[toRow][toCol] = this.board[this.selectedPiece.row][this.selectedPiece.col];
+    this.board[this.selectedPiece.row][this.selectedPiece.col] = '.';
+    
+    // King piece if needed
+    if (toRow === 0 && this.currentTurn === 'B' || 
+        toRow === 7 && this.currentTurn === 'W') {
+      this.board[toRow][toCol] += 'K'; 
+    }
+    
+    this.clearSelection();
+    this.drawBoard();
+    this.checkGameEnd();
+  }
+
+  changeTurn() {
+    this.currentTurn = this.currentTurn === 'W' ? 'B' : 'W';
+  }
+
+  highlightSquares(row, col) {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.isValidMove(i, j)) {
+          const square = document.getElementById(`square-${i}-${j}`);
+          square.classList.add('highlight');
+        }
+      }
+    }
+  }
+
+  clearSelection() {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const square = document.getElementById(`square-${i}-${j}`);
+        square.classList.remove('highlight');
+      }
+    }
+    this.selectedPiece = null;
+  }
+
+  checkGameEnd() {
+    let whiteCount = 0;
+    let blackCount = 0;
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.board[i][j][0] === 'W') {
+          whiteCount++;
+        }
+        else if (this.board[i][j][0] === 'B') {
+          blackCount++;
+        }
+      }
+    }
+
+    if (whiteCount === 0) {
+      alert('Black wins!');
+    } else if (blackCount === 0) {
+      alert('White wins!'); 
+    }
+  }
+}
+
+const game = new CheckersGame();
