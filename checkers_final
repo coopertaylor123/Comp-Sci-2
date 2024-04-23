@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkers</title>
+  <style>
+    #game-board {
+      width: 400px;
+      height: 400px;
+      border: 1px solid black;
+    }
+
+    .square {
+      width: 50px;
+      height: 50px;
+      float: left;
+    }
+
+    .light-square {
+      background-color: beige; 
+    }
+
+    .dark-square {
+      background-color: brown;
+    }
+
+    .piece {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin: 2.5px;
+    }
+
+    .red-piece {
+      background-color: red;
+    }
+
+    .black-piece {
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>Checkers</h1>
+  <div id="game-board"></div>
+  <script>
+    const board = [
+      [null, 'red',  null, 'red',  null, 'red',  null, 'red'],
+      ['red',  null, 'red',  null, 'red',  null, 'red',  null],
+      [null, 'red',  null, 'red',  null, 'red',  null, 'red'],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      ['black',null, 'black',null, 'black',null, 'black',null],
+      [null, 'black',null, 'black',null, 'black',null, 'black'],
+      ['black',null, 'black',null, 'black',null, 'black',null]
+    ];
+
+    let selectedPiece = null;
+    let currentPlayer = 'red';
+
+    function renderBoard() {
+        const boardElement = document.getElementById('game-board');
+        boardElement.innerHTML = ''; 
+      
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const square = document.createElement('div');
+            square.classList.add('square');
+            if ((row + col) % 2 === 0) square.classList.add('light-square');
+            else square.classList.add('dark-square');
+      
+            if (board[row][col]) {
+              const piece = document.createElement('div');
+              piece.classList.add('piece', board[row][col] + '-piece');
+              square.appendChild(piece); 
+            }
+      
+            square.addEventListener('click', () => handleClick(row, col));
+            boardElement.appendChild(square); 
+          }
+        }
+      }
+      function handleClick(row, col) {
+        if (board[row][col] === currentPlayer) {
+          selectedPiece = { row, col };
+        } else if (selectedPiece) {
+          if (isValidMove(selectedPiece.row, selectedPiece.col, row, col)) {
+            movePiece(selectedPiece.row, selectedPiece.col, row, col);
+            selectedPiece = null;
+            switchPlayer();
+          }
+        }
+      }
+
+      function isValidMove(oldRow, oldCol, newRow, newCol) {
+        const deltaRow = Math.abs(newRow - oldRow);
+        const deltaCol = Math.abs(newCol - oldCol);
+    
+        if (deltaRow !== 1 && deltaRow !== 2) return false;
+        if (deltaCol !== deltaRow) return false; // ensures move is diagonal
+        if (board[newRow][newCol] !== null) return false; 
+    
+        if (deltaRow === 2) {
+            const jumpRow = (newRow + oldRow) / 2;
+            const jumpCol = (newCol + oldCol) / 2;
+            const jumpedPiece = board[jumpRow][jumpCol];
+    
+            if (!jumpedPiece || jumpedPiece === currentPlayer) {
+              return false; 
+            }
+            return true; 
+        }
+    
+        return true; 
+    }
+    
+    function movePiece(oldRow, oldCol, newRow, newCol) {
+        board[newRow][newCol] = board[oldRow][oldCol];
+        board[oldRow][oldCol] = null;
+    
+        const deltaRow = Math.abs(newRow - oldRow);
+        if (deltaRow === 2) {
+            const jumpRow = (newRow + oldRow) / 2;
+            const jumpCol = (newCol + oldCol) / 2;
+            board[jumpRow][jumpCol] = null; // Perform the capture
+        }
+    
+        renderBoard();
+    }
+      function switchPlayer() {
+        currentPlayer = currentPlayer === 'red' ? 'black' : 'red';
+      }
+
+    renderBoard(); 
+  </script>
+</body>
+</html>
