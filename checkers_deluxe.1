@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkers Deluxe</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-align: center;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      margin: 20px 0;
+      font-size: 3em;
+    }
+    #game-board {
+      width: 640px;
+      height: 640px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      border: 5px solid #333;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+    .square {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .dark-square {
+      background-color: #bbb;
+    }
+    .light-square {
+      background-color: #fff;
+    }
+    .square:hover {
+      background-color: #e3e3e3;
+    }
+    .piece {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      font-weight: bold;
+    }
+    .red-piece {
+      background-color: #d24d57;
+    }
+    .black-piece {
+      background-color: #333;
+    }
+    .selected {
+      border: 3px solid yellow;
+      box-sizing: border-box;
+    }
+    .info {
+      font-size: 18px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Checkers Deluxe</h1>
+  <div id="game-board"></div>
+  <div class="info" id="turn-info"></div>
+  <div class="info" id="score-info"></div>
+  
+  <script>
+    const board = [
+      [null, 'r', null, 'r', null, 'r', null, 'r'],
+      ['r', null, 'r', null, 'r', null, 'r', null],
+      [null, 'r', null, 'r', null, 'r', null, 'r'],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      ['b', null, 'b', null, 'b', null, 'b', null],
+      [null, 'b', null, 'b', null, 'b', null, 'b'],
+      ['b', null, 'b', null, 'b', null, 'b', null]
+    ];
+
+    let selectedPiece = null;
+    let selectedRow = null;
+    let selectedCol = null;
+    let currentPlayer = 'r'; // 'r' for red, 'b' for black
+
+    function renderBoard() {
+      const boardElement = document.getElementById('game-board');
+      boardElement.innerHTML = '';
+      document.getElementById('turn-info').textContent = "Turn: " + (currentPlayer === 'r' ? "Red" : "Black");
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement('div');
+          square.classList.add('square', ((row + col) % 2 === 0) ? 'light-square' : 'dark-square');
+          square.setAttribute('data-row', row);
+          square.setAttribute('data-col', col);
+          square.onclick = () => handleSquareClick(row, col);
+
+          const piece = board[row][col];
+          if (piece) {
+            const pieceElement = document.createElement('div');
+            pieceElement.classList.add('piece', piece === 'r' ? 'red-piece' : 'black-piece');
+            pieceElement.onclick = (e) => {
+              e.stopPropagation();
+              selectPiece(row, col, pieceElement);
+            };
+            square.appendChild(pieceElement);
+          }
+          boardElement.appendChild(square);
+        }
+      }
+    }
+
+    function selectPiece(row, col, pieceElement) {
+      if (board[row][col] === currentPlayer) {
+        if (selectedPiece) {
+          selectedPiece.classList.remove('selected');
+        }
+        selectedPiece = pieceElement;
+        selectedRow = row;
+        selectedCol = col;
+        selectedPiece.classList.add('selected');
+      }
+    }
+
+    function handleSquareClick(row, col) {
+      if (!selectedPiece) return;
+      if (isValidMove(selectedRow, selectedCol, row, col)) {
+        movePiece(selectedRow, selectedCol, row, col);
+        switchPlayer();
+      }
+    }
+
+    function isValidMove(oldRow, oldCol, newRow, newCol) {
+      if (board[newRow][newCol] !== null) return false; // Cannot move to occupied square
+      const rowDiff = Math.abs(newRow - oldRow);
+      const colDiff = Math.abs(newCol - oldCol);
+      if (rowDiff !== 1 && rowDiff !== 2) return false;
+      if (colDiff !== rowDiff) return false; // Move must be diagonal
+
+      if (rowDiff === 2) { // Jumping over a piece
+        const midRow = (newRow + oldRow) / 2;
+        const midCol = (newCol + oldCol) / 2;
+        const jumpedPiece = board[midRow][midCol];
+        if (!jumpedPiece || jumpedPiece === currentPlayer) return false;
+      }
+      return true; // Valid move or capture
+    }
+
+    function movePiece(oldRow, oldCol, newRow, newCol) {
+      board[newRow][newCol] = board[oldRow][oldCol]; // Move the piece
+      board[oldRow][oldCol] = null; // Clear the old square
+      if (Math.abs(newRow - oldRow) === 2) { // Remove the jumped piece
+        const midRow = (newRow + oldRow) / 2;
+        const midCol = (newCol + oldCol) / 2;
+        board[midRow][midCol] = null;
+      }
+      selectedPiece.classList.remove('selected');
+      selectedPiece = null;
+      renderBoard();
+    }
+
+    function switchPlayer() {
+      currentPlayer = (currentPlayer === 'r' ? 'b' : 'r');
+      renderBoard();
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
