@@ -1,0 +1,24 @@
+def factorial(n):
+    if n == 1:
+        return 1
+    else:
+        return n * factorial(n-1)
+# Example usage
+print(factorial(5)) # Output: 120
+def summation(n):
+    if n == 1:
+        return 1
+    else:
+        return n + summation(n-1)
+
+# Example usage
+print(summation(5)) # Output: 15
+def power(base, exponent):
+    if exponent == 0:
+        return 1
+    elif exponent == 1:
+        return base
+    else:
+        return base * power(base, exponent-1)
+# Example usage
+print(power(2, 3)) # Output: 8
