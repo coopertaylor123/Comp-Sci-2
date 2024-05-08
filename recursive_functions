@@ -1,0 +1,148 @@
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n - 1)
+
+def summation(n):
+    if n == 0:
+        return 0
+    else:
+        return n + summation(n - 1)
+
+def power(a, n):
+    if n == 0:
+        return 1
+    else:
+        return a * power(a, n - 1)
+
+def fibonacci(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+
+def sum_of_digits(n):
+    if n < 10:
+        return n
+    else:
+        return n % 10 + sum_of_digits(n // 10)
+
+def product_of_digits(n):
+    if n < 10:
+        return n
+    else:
+        return (n % 10) * product_of_digits(n // 10)
+
+def product(a, b):
+    if b == 0:
+        return 0
+    else:
+        return a + product(a, b - 1)
+
+def sum_in_range(start, end):
+    if start > end:
+        return 0
+    else:
+        return start + sum_in_range(start + 1, end)
+
+def reverse_digits(n):
+    return int(str(n)[::-1]) if n > 0 else 0
+
+def gcd(x, y):
+    if x % y == 0:
+        return y
+    else:
+        return gcd(y, x % y)
+
+def compound_interest_balance(p, r, t):
+    if t == 0:
+        return p
+    else:
+        return (1 + r) * compound_interest_balance(p, r, t - 1)
+
+def square_root(n, p, e):
+    if abs(e**2 - n) < p:
+        return e
+    else:
+        return square_root(n, p, (e + n/e) / 2)
+
+def combinations(n, k):
+    if k == 0 or k == n:
+        return 1
+    else:
+        return combinations(n - 1, k - 1) + combinations(n - 1, k)
+
+def menu():
+    print("Recursive Algorithm Assignment Menu:")
+    print("1. Factorial of a number")
+    print("2. Summation of a number")
+    print("3. Power/exponential function")
+    print("4. Fibonacci’s numbers")
+    print("5. Sum of a number’s digits")
+    print("6. Product of number’s digits")
+    print("7. Product of two whole numbers")
+    print("8. Sum of numbers in a range")
+    print("9. Reverse the digits in a number")
+    print("10. Euclid’s GCD algorithm")
+    print("11. Find a compound interest balance")
+    print("12. Find a square root using the bisection method")
+    print("13. Find combinations of items")
+    print("14. Exit")
+    choice = int(input("Enter your choice: "))
+    return choice
+
+def main():
+    while True:
+        choice = menu()
+        if choice == 14:
+            print("Exiting the program.")
+            break
+        elif choice in range(1, 14):
+            if choice in [1, 2, 3, 4, 5, 6, 7, 9, 10]:
+                n = int(input("Enter a number: "))
+                if choice == 1:
+                    print(f"Factorial: {factorial(n)}")
+                elif choice == 2:
+                    print(f"Summation: {summation(n)}")
+                elif choice == 3:
+                    m = int(input("Enter the exponent: "))
+                    print(f"Power: {power(n, m)}")
+                elif choice == 4:
+                    print(f"Fibonacci: {fibonacci(n)}")
+                elif choice == 5:
+                    print(f"Sum of digits: {sum_of_digits(n)}")
+                elif choice == 6:
+                    print(f"Product of digits: {product_of_digits(n)}")
+                elif choice == 7:
+                    m = int(input("Enter another number: "))
+                    print(f"Product of two numbers: {product(n, m)}")
+                elif choice == 9:
+                    print(f"Reversed digits: {reverse_digits(n)}")
+                elif choice == 10:
+                    m = int(input("Enter another number: "))
+                    print(f"GCD: {gcd(n, m)}")
+            elif choice == 8:
+                start = int(input("Enter the start of the range: "))
+                end = int(input("Enter the end of the range: "))
+                print(f"Sum in range: {sum_in_range(start, end)}")
+            elif choice == 11:
+                p = float(input("Enter the principal amount: "))
+                r = float(input("Enter the interest rate: "))
+                t = int(input("Enter the time in years: "))
+                print(f"Compound interest balance: {compound_interest_balance(p, r, t)}")
+            elif choice == 12:
+                n = float(input("Enter the number to find the square root of: "))
+                p = float(input("Enter the precision: "))
+                print(f"Square root: {square_root(n, p, n)}")
+            elif choice == 13:
+                n = int(input("Enter the total number of items: "))
+                k = int(input("Enter the number of items to choose: "))
+                print(f"Combinations: {combinations(n, k)}")
+        else:
+            print("Invalid choice, please choose a valid option.")
+
+if __name__ == "__main__":
+    main()
