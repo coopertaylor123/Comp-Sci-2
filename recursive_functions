@@ -1,21 +1,47 @@
+# Author: Cooper Taylor
+# Date Finished: 5/9/2024
+# Description: numbers 
+# Bugs: None
+# Challenges: N/A
+# Sources: None
+
+
+"""
+- Takes in a positive integer n.
+- Returns the factorial of n.
+- Throws no errors.
+"""
 def factorial(n):
     if n == 0:
         return 1
     else:
         return n * factorial(n - 1)
-
+"""
+- Takes in a positive integer n.
+- Returns the summation of integers from 1 to n.
+- Throws no errors.
+"""
 def summation(n):
     if n == 0:
         return 0
     else:
         return n + summation(n - 1)
+"""
+- Takes in a base number a and a non-negative integer n.
+- Returns the value of a raised to the power of n.
+- Throws no errors.
+"""
 
 def power(a, n):
     if n == 0:
         return 1
     else:
         return a * power(a, n - 1)
-
+"""
+- Takes in a non-negative integer n.
+- Returns the nth number in the Fibonacci sequence.
+- Throws no errors.
+"""
 def fibonacci(n):
     if n == 0:
         return 0
@@ -23,58 +49,99 @@ def fibonacci(n):
         return 1
     else:
         return fibonacci(n - 1) + fibonacci(n - 2)
-
+"""
+- Takes in a non-negative integer n.
+- Returns the sum of the digits of n.
+- Throws no errors.
+"""
 def sum_of_digits(n):
     if n < 10:
         return n
     else:
         return n % 10 + sum_of_digits(n // 10)
-
+"""
+- Takes in a non-negative integer n.
+- Returns the product of the digits of n.
+- Throws no errors.
+"""
 def product_of_digits(n):
     if n < 10:
         return n
     else:
         return (n % 10) * product_of_digits(n // 10)
-
+"""
+- Takes in two integers a and b.
+- Returns the product of a and b.
+- Throws no errors.
+"""
 def product(a, b):
     if b == 0:
         return 0
     else:
         return a + product(a, b - 1)
-
+"""
+- Takes in two integers start and end such that start <= end.
+- Returns the sum of the integers from start to end inclusive.
+- Throws no errors.
+"""
 def sum_in_range(start, end):
     if start > end:
         return 0
     else:
         return start + sum_in_range(start + 1, end)
-
+"""
+- Takes in a non-negative integer n.
+- Returns the integer with its digits reversed.
+- Throws no errors.
+"""
 def reverse_digits(n):
     return int(str(n)[::-1]) if n > 0 else 0
-
+"""
+- Takes in two positive integers x and y.
+- Returns the greatest common divisor of x and y.
+- Throws no errors.
+"""
 def gcd(x, y):
     if x % y == 0:
         return y
     else:
         return gcd(y, x % y)
-
+"""
+- Takes in three non-negative numbers p, r, and t.
+- Returns the compound interest balance after t years with principal p and interest rate r.
+- Throws no errors.
+"""
 def compound_interest_balance(p, r, t):
     if t == 0:
         return p
     else:
         return (1 + r) * compound_interest_balance(p, r, t - 1)
-
+"""
+- Takes in a positive number n, a positive number p, and an initial guess e for the square root of n.
+- Returns the square root of n with a precision of p.
+- Throws no errors.
+"""
 def square_root(n, p, e):
     if abs(e**2 - n) < p:
         return e
     else:
         return square_root(n, p, (e + n/e) / 2)
-
+"""
+- Takes in two non-negative integers n and k such that k <= n.
+- Returns the number of combinations of k items from n items.
+- Throws no errors.
+"""
 def combinations(n, k):
     if k == 0 or k == n:
         return 1
     else:
         return combinations(n - 1, k - 1) + combinations(n - 1, k)
+"""
+- Takes no input.
+- Returns the user's choice of operation.
+- Throws no errors.
 
+"""
 def menu():
     print("Recursive Algorithm Assignment Menu:")
     print("1. Factorial of a number")
@@ -93,7 +160,11 @@ def menu():
     print("14. Exit")
     choice = int(input("Enter your choice: "))
     return choice
-
+"""
+- Takes no input.
+- Executes the selected operation based on the user's choice.
+- Throws no errors.
+"""
 def main():
     while True:
         choice = menu()
