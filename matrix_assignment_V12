@@ -1,0 +1,244 @@
+
+# I named the matrices trixy and alice and refer back to them as that when prompted. not sure if this is what you wanted, it seemed like it was written like that in the spec sheet though, so I did.
+class Matrix:
+    def __init__(self, rows, cols, data=None):
+        # initialize matrix with given rows, cols, optional data
+        if not isinstance(rows, int) or not isinstance(cols, int) or rows <= 0 or cols <= 0:
+            raise ValueError("Rows and columns must be positive integers.")
+        self.rows = rows  # number of rows
+        self.cols = cols  # number of columns
+        if data is None:
+            self.data = [[0 for _ in range(cols)] for _ in range(rows)]  # create zero matrix
+        else:
+            if len(data) != rows or any(len(row) != cols for row in data):
+                raise ValueError("Data dimensions must match the specified number of rows and columns.")
+            self.data = data  # assign provided data
+
+    def print(self):
+        # print matrix row by row
+        for row in self.data:
+            print(row)  # print each row
+        print()  # blank line after matrix
+
+    def plus(self, other):
+        # add two matrices element-wise
+        if not isinstance(other, Matrix):
+            raise TypeError("The argument must be of type Matrix.")
+        if self.rows != other.rows or self.cols != other.cols:
+            raise ValueError("Matrices must have the same dimensions to add.")
+        result = Matrix(self.rows, self.cols)  # initialize result matrix
+        for i in range(self.rows):
+            for j in range(self.cols):
+                result.data[i][j] = self.data[i][j] + other.data[i][j]  # element-wise addition
+                # add corresponding elements of both matrices
+        return result  # return new matrix with summed values
+
+    def times(self, other):
+        # multiply two matrices
+        if not isinstance(other, Matrix):
+            raise TypeError("The argument must be of type Matrix.")
+        if self.cols != other.rows:
+            raise ValueError("Number of columns of the first matrix must equal the number of rows of the second matrix.")
+        result = Matrix(self.rows, other.cols)  # initialize result matrix
+        for i in range(self.rows):
+            for j in range(other.cols):
+                for k in range(self.cols):
+                    result.data[i][j] += self.data[i][k] * other.data[k][j]  # multiply and accumulate values
+                    # calculate dot product of row and column for resulting matrix
+        return result  # return new matrix with product values
+
+    def scalarTimesRow(self, scalar, row_number):
+        # multiply a specific row by a scalar
+        if not isinstance(scalar, (int, float)):
+            raise TypeError("Scalar must be a number.")
+        if row_number < 0 or row_number >= self.rows:
+            raise IndexError("Row number out of range.")
+        for j in range(self.cols):
+            self.data[row_number][j] *= scalar  # scale row by scalar
+            # update each element in the specified row by multiplying with scalar
+
+    def switchRows(self, row1, row2):
+        # switch positions of two rows
+        if row1 < 0 or row1 >= self.rows or row2 < 0 or row2 >= self.rows:
+            raise IndexError("Row number out of range.")
+        self.data[row1], self.data[row2] = self.data[row2], self.data[row1]  # swap rows
+        # exchange row1 and row2 in matrix to perform row switching
+
+    def linearCombRows(self, scalar, source_row, target_row):
+        # add a scalar multiple of one row to another row
+        if not isinstance(scalar, (int, float)):
+            raise TypeError("Scalar must be a number.")
+        if source_row < 0 or source_row >= self.rows or target_row < 0 or target_row >= self.rows:
+            raise IndexError("Row number out of range.")
+        for j in range(self.cols):
+            self.data[target_row][j] += scalar * self.data[source_row][j]  # add scaled source row to target row
+            # modify target row by adding scalar multiple of source row
+
+    def rowreduce(self):
+        # perform gaussian elimination to row reduce matrix
+        for i in range(min(self.rows, self.cols)):
+            # make diagonal element 1
+            if self.data[i][i] != 0:
+                self.scalarTimesRow(1 / self.data[i][i], i)  # scale row to make leading element 1
+                # normalize pivot element to 1
+            # make elements below diagonal 0
+            for j in range(i + 1, self.rows):
+                if self.data[j][i] != 0:
+                    self.linearCombRows(-self.data[j][i], i, j)  # eliminate below pivot
+                    # eliminate entries below the pivot element to form row echelon
+
+    def invert(self):
+        # invert a square matrix using augmented row reduction
+        if self.rows != self.cols:
+            raise ValueError("Only square matrices can be inverted.")
+        # create identity matrix of same size
+        identity = Matrix(self.rows, self.cols)
+        for i in range(self.rows):
+            identity.data[i][i] = 1  # set diagonal to 1 for identity matrix
+            # construct identity matrix
+        # augment original matrix with identity matrix
+        augmented = Matrix(self.rows, self.cols * 2)
+        for i in range(self.rows):
+            augmented.data[i] = self.data[i] + identity.data[i]  # concatenate rows of original and identity
+            # create augmented matrix by appending identity matrix to original
+        # row reduce the augmented matrix
+        augmented.rowreduce()  # row reduce to get identity on the left side
+        # extract the inverse from the augmented matrix
+        inverse = Matrix(self.rows, self.cols)
+        for i in range(self.rows):
+            inverse.data[i] = augmented.data[i][self.cols:]  # take right half as inverse matrix
+            # extract right-hand side of augmented matrix as inverse matrix
+        return inverse  # return the inverted matrix
+
+# example usage
+if __name__ == "__main__":
+    # get matrix dimensions from user
+    while True:
+        try:
+            rows = int(input("Enter the number of rows for the matrix: "))
+            cols = int(input("Enter the number of columns for the matrix: "))
+            if rows <= 0 or cols <= 0:
+                print("Rows and columns must be positive integers. Please try again.")
+                continue
+            break
+        except ValueError:
+            print("Invalid input. Please enter positive integers for rows and columns.")
+
+    # get matrix data from user
+    data = []
+    print("Enter the matrix row by row (space-separated values):")
+    for i in range(rows):
+        while True:
+            try:
+                row = list(map(float, input(f"Row {i + 1}: ").split()))
+                if len(row) != cols:
+                    print(f"Each row must have exactly {cols} values. Please try again.")
+                    continue
+                data.append(row)
+                break
+            except ValueError:
+                print("Invalid input. Please enter numbers only.")
+
+    # create matrix
+    trixie = Matrix(rows, cols, data)
+
+    # menu for operations
+    while True:
+        print("\nSelect an operation:")
+        print("1. Print Matrix")
+        print("2. Add another matrix")
+        print("3. Multiply by another matrix")
+        print("4. Multiply a row by a scalar")
+        print("5. Switch two rows")
+        print("6. Exit")
+        choice = input("Enter your choice (1-6): ")
+
+        if choice == '1':
+            # print matrix
+            print("Matrix Trixie:")
+            trixie.print()
+        elif choice == '2':
+            # add another matrix
+            print("Enter data for another matrix of the same dimensions:")
+            data2 = []
+            for i in range(rows):
+                while True:
+                    try:
+                        row = list(map(float, input(f"Row {i + 1}: ").split()))
+                        if len(row) != cols:
+                            print(f"Each row must have exactly {cols} values. Please try again.")
+                            continue
+                        data2.append(row)
+                        break
+                    except ValueError:
+                        print("Invalid input. Please enter numbers only.")
+            alice = Matrix(rows, cols, data2)
+            try:
+                result_add = trixie.plus(alice)
+                print("Result of Trixie + Alice:")
+                result_add.print()
+            except ValueError as e:
+                print(e)
+        elif choice == '3':
+            # multiply by another matrix
+            other_rows = int(input("Enter the number of rows for the other matrix: "))
+            other_cols = int(input("Enter the number of columns for the other matrix: "))
+            if trixie.cols != other_rows:
+                print("Number of columns of the first matrix must equal the number of rows of the second matrix.")
+                continue
+            data2 = []
+            print("Enter the matrix row by row (space-separated values):")
+            for i in range(other_rows):
+                while True:
+                    try:
+                        row = list(map(float, input(f"Row {i + 1}: ").split()))
+                        if len(row) != other_cols:
+                            print(f"Each row must have exactly {other_cols} values. Please try again.")
+                            continue
+                        data2.append(row)
+                        break
+                    except ValueError:
+                        print("Invalid input. Please enter numbers only.")
+            alice = Matrix(other_rows, other_cols, data2)
+            try:
+                result_multiply = trixie.times(alice)
+                print("Result of Trixie * Alice:")
+                result_multiply.print()
+            except ValueError as e:
+                print(e)
+        elif choice == '4':
+            # multiply a row by a scalar
+            while True:
+                try:
+                    row_num = int(input("Enter the row number to multiply by a scalar (0-indexed): "))
+                    if row_num < 0 or row_num >= rows:
+                        print(f"Row number must be between 0 and {rows - 1}. Please try again.")
+                        continue
+                    scalar = float(input("Enter the scalar value: "))
+                    trixie.scalarTimesRow(scalar, row_num)
+                    print("Trixie after scalarTimesRow:")
+                    trixie.print()
+                    break
+                except (ValueError, IndexError) as e:
+                    print(e)
+        elif choice == '5':
+            # switch two rows
+            while True:
+                try:
+                    row1 = int(input("Enter the first row to switch (0-indexed): "))
+                    row2 = int(input("Enter the second row to switch (0-indexed): "))
+                    if row1 < 0 or row1 >= rows or row2 < 0 or row2 >= rows:
+                        print(f"Row numbers must be between 0 and {rows - 1}. Please try again.")
+                        continue
+                    trixie.switchRows(row1, row2)
+                    print("Trixie after switchRows:")
+                    trixie.print()
+                    break
+                except (ValueError, IndexError) as e:
+                    print(e)
+        elif choice == '6':
+            # exit program
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please enter a number between 1 and 6.")
