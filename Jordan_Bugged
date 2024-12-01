@@ -1,0 +1,201 @@
+class Matrix:
+    def __init__(self, data):
+        # Initialize the matrix with data (2D list)
+        self.data = data
+        self.rows = len(data)
+        self.cols = len(data[0]) if data else 0
+
+    def print(self):
+        # Print the matrix row by row
+        for row in self.data:
+            print(row)
+
+    def plus(self, other):
+        # Add two matrices
+        if self.rows != other.rows or self.cols != other.cols:
+            print("Matrices must have the same dimensions for addition.")
+            return None
+        result = []
+        for i in range(self.rows):
+            result_row = []
+            for j in range(self.cols):
+                result_row.append(self.data[i][j] + other.data[i][j])
+            result.append(result_row)
+        return Matrix(result)
+
+    def times(self, other):
+        # Multiply two matrices
+        if self.cols != other.rows:
+            print("Number of columns of the first matrix must equal number of rows of the second matrix.")
+            return None
+        result = []
+        for i in range(self.rows):
+            result_row = []
+            for j in range(other.cols):
+                sum = 0
+                for k in range(self.cols):
+                    sum += self.data[i][k] * other.data[k][j]
+                result_row.append(sum)
+            result.append(result_row)
+        return Matrix(result)
+
+    def scalarTimesRow(self, scalar, rownumber):
+        # Multiply a row by a scalar
+        if rownumber < 0 or rownumber >= self.rows:
+            print("Invalid row number.")
+            return None
+        new_data = [row[:] for row in self.data]  # Copy the data
+        for i in range(self.cols):
+            new_data[rownumber][i] *= scalar
+        return Matrix(new_data)
+
+    def switchRows(self, firstrow, secondrow):
+        # Switch two rows of the matrix
+        if firstrow < 0 or firstrow >= self.rows or secondrow < 0 or secondrow >= self.rows:
+            print("Invalid row numbers.")
+            return None
+        new_data = [row[:] for row in self.data]  # Copy the data
+        new_data[firstrow], new_data[secondrow] = new_data[secondrow], new_data[firstrow]
+        return Matrix(new_data)
+
+    def linearCombRows(self, scalar, firstrow, secondrow):
+        # Add a scalar multiple of the first row to the second row
+        if firstrow < 0 or firstrow >= self.rows or secondrow < 0 or secondrow >= self.rows:
+            print("Invalid row numbers.")
+            return None
+        new_data = [row[:] for row in self.data]  # Copy the data
+        for i in range(self.cols):
+            new_data[secondrow][i] += scalar * new_data[firstrow][i]
+        return Matrix(new_data)
+
+    def rowreduce(self):
+        # Perform row reduction to get the matrix in reduced row echelon form (RREF)
+        new_data = [row[:] for row in self.data]  # Copy the data
+        for i in range(min(self.rows, self.cols)):
+            # Make the diagonal element 1 (if possible)
+            if new_data[i][i] != 0:
+                divisor = new_data[i][i]
+                for j in range(self.cols):
+                    new_data[i][j] /= divisor
+            # Make all elements below and above the diagonal 0
+            for k in range(self.rows):
+                if k != i:
+                    factor = new_data[k][i]
+                    for j in range(self.cols):
+                        new_data[k][j] -= factor * new_data[i][j]
+        return Matrix(new_data)
+
+    def invert(self):
+        # Invert the matrix (only works for square matrices)
+        if self.rows != self.cols:
+            print("Matrix must be square to find its inverse.")
+            return None
+        # Create an augmented matrix with the identity matrix
+        identity = [[1 if i == j else 0 for j in range(self.cols)] for i in range(self.rows)]
+        new_data = [self.data[i] + identity[i] for i in range(self.rows)]
+        augmented_matrix = Matrix(new_data).rowreduce()
+        # Extract the right half of the augmented matrix (which should be the inverse)
+        inverse_data = [row[self.cols:] for row in augmented_matrix.data]
+        if len(inverse_data[0]) != self.cols:  # Added bug: Inconsistent column check
+            print("Error in inverting the matrix.")
+            return None
+        return Matrix(inverse_data)
+
+def main():
+    print("Welcome to the Matrix Operations Program!")
+    print("Please enter the dimensions of the matrix (rows and columns):")
+    rows = int(input("Enter number of rows: "))
+    cols = int(input("Enter number of columns: "))
+    data = []
+    print("Enter the elements row by row:")
+    for i in range(rows):
+        row = list(map(float, input(f"Enter elements of row {i + 1} separated by space: ").split()))
+        if len(row) != cols:  # Added bug: Incorrectly checks for matching columns per row
+            print("Row length does not match the number of columns specified.")
+            return
+        data.append(row)
+    matrix = Matrix(data)
+
+    while True:
+        print("\nChoose an operation:")
+        print("1. Print Matrix")
+        print("2. Add Another Matrix")
+        print("3. Multiply by Another Matrix")
+        print("4. Multiply a Row by a Scalar")
+        print("5. Switch Rows")
+        print("6. Linear Combination of Rows")
+        print("7. Row Reduce Matrix")
+        print("8. Invert Matrix")
+        print("9. Exit")
+        choice = int(input("Enter your choice: "))
+
+        if choice == 1:
+            matrix.print()
+        elif choice == 2:
+            print("Enter the dimensions of the second matrix (rows and columns must match):")
+            rows = int(input("Enter number of rows: "))
+            cols = int(input("Enter number of columns: "))
+            data = []
+            print("Enter the elements row by row:")
+            for i in range(rows):
+                row = list(map(float, input(f"Enter elements of row {i + 1} separated by space: ").split()))
+                data.append(row)
+            other = Matrix(data)
+            result = matrix.plus(other)
+            if result:
+                print("Resultant Matrix:")
+                result.print()
+        elif choice == 3:
+            print("Enter the dimensions of the second matrix (number of rows must match number of columns of the first matrix):")
+            rows = int(input("Enter number of rows: "))
+            cols = int(input("Enter number of columns: "))
+            data = []
+            print("Enter the elements row by row:")
+            for i in range(rows):
+                row = list(map(float, input(f"Enter elements of row {i + 1} separated by space: ").split()))
+                data.append(row)
+            other = Matrix(data)
+            result = matrix.times(other)
+            if result:
+                print("Resultant Matrix:")
+                result.print()
+        elif choice == 4:
+            scalar = float(input("Enter the scalar value: "))
+            rownumber = int(input("Enter the row number to multiply (starting from 0): "))
+            result = matrix.scalarTimesRow(scalar, rownumber)
+            if result:
+                print("Resultant Matrix:")
+                result.print()
+        elif choice == 5:
+            firstrow = int(input("Enter the first row number to switch (starting from 0): "))
+            secondrow = int(input("Enter the second row number to switch (starting from 0): "))
+            result = matrix.switchRows(firstrow, secondrow)
+            if result:
+                print("Resultant Matrix:")
+                result.print()
+        elif choice == 6:
+            scalar = float(input("Enter the scalar value: "))
+            firstrow = int(input("Enter the row number to multiply (starting from 0): "))
+            secondrow = int(input("Enter the row number to add to (starting from 0): "))
+            result = matrix.linearCombRows(scalar, firstrow, secondrow)
+            if result:
+                print("Resultant Matrix:")
+                result.print()
+        elif choice == 7:
+            result = matrix.rowreduce()
+            if result:
+                print("Row Reduced Matrix:")
+                result.print()
+        elif choice == 8:
+            result = matrix.invert()
+            if result:
+                print("Inverse Matrix:")
+                result.print()
+        elif choice == 9:
+            print("Exiting the program. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
