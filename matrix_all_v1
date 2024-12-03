@@ -1,0 +1,436 @@
+class Matrix:
+    #initialize the matrix
+    def __init__(self, data):
+        #store the data in the matrix
+        self.data = data
+        #get the number of rows
+        self.rows = len(data)
+        #get the number of columns
+        if self.rows > 0:
+            self.cols = len(data[0])
+        else:
+            self.cols = 0
+        #end of initialization
+
+    #function to print the matrix
+    def print(self):
+        #loop through each row
+        for row in self.data:
+            # print the row
+            print(row)
+
+    #function to add two matrices
+    def plus(self, other):
+        #check if dimensions match
+        if self.rows != other.rows or self.cols != other.cols:
+            print("matrices cannot be added")
+            return None
+        #create an empty list to store result
+        result = []
+        #loop through rows
+        for i in range(0, self.rows):
+            #create a new row
+            newrow = []
+            #loop through columns
+            for j in range(0, self.cols):
+                #add corresponding elements
+                sum = self.data[i][j] + other.data[i][j]
+                newrow.append(sum)
+            #add the row to result
+            result.append(newrow)
+        #return the new matrix
+        return Matrix(result)
+
+    # function to multiply two matrices
+    def times(self, other):
+        #check if matrices can be multiplied
+        if self.cols != other.rows:
+            print("matrices cannot be multiplied")
+            return None
+        #create an empty list to store result
+        result = []
+        #loop through rows of self
+        for i in range(0, self.rows):
+            #create a new row
+            newrow = []
+            #loop through columns of other
+            for j in range(0, other.cols):
+                #initialize the sum
+                sum = 0
+                #loop through elements
+                for k in range(0, self.cols):
+                    # multiply and add
+                    sum = sum + self.data[i][k] * other.data[k][j]
+                # append the sum to the row
+                newrow.append(sum)
+            # add the row to result
+            result.append(newrow)
+        # return the new matrix
+        return Matrix(result)
+        # end of times function
+
+    # function to multiply a scalar times a row
+    def scalarTimesRow(self, scalar, rownumber):
+        # check if row number is valid
+        if rownumber < 0 or rownumber >= self.rows:
+            print("invalid row number")
+            return None
+        # multiply the row by the scalar
+        newrow = []
+        for i in range(0, self.cols):
+            product = self.data[rownumber][i] * scalar
+            newrow.append(product)
+        # replace the row in the matrix
+        self.data[rownumber] = newrow
+        # return the matrix
+        return self
+
+    # function to switch two rows
+    def switchRows(self, firstrow, secondrow):
+        # check if row numbers are valid
+        if firstrow < 0 or firstrow >= self.rows or secondrow < 0 or secondrow >= self.rows:
+            print("invalid row numbers")
+            return None
+        # switch the rows
+        temp = self.data[firstrow]
+        self.data[firstrow] = self.data[secondrow]
+        self.data[secondrow] = temp
+        # return the matrix
+        return self
+
+    # function to perform linear combination of rows
+    def linearCombRows(self, scalar, firstrow, secondrow):
+        # adds scalar times firstrow to secondrow
+        # check if row numbers are valid
+        if firstrow < 0 or firstrow >= self.rows or secondrow < 0 or secondrow >= self.rows:
+            print("invalid row numbers")
+            return None
+        # compute scalar times first row
+        scalarrow = []
+        for i in range(0, self.cols):
+            product = self.data[firstrow][i] * scalar
+            scalarrow.append(product)
+        # add to second row
+        newrow = []
+        for i in range(0, self.cols):
+            sum = self.data[secondrow][i] + scalarrow[i]
+            newrow.append(sum)
+        # replace the second row
+        self.data[secondrow] = newrow
+        # return the matrix
+        return self
+
+    # function to compute the determinant
+    def determinant(self):
+        # check if matrix is square
+        if self.rows != self.cols:
+            print("determinant not defined for nonsquare matrices")
+            return None
+        # base case for 2x2 matrix
+        if self.rows == 2:
+            det = self.data[0][0]*self.data[1][1] - self.data[0][1]*self.data[1][0]
+            return det
+        # recursive case
+        det = 0
+        for c in range(0, self.cols):
+            minor = self.getMinor(0, c)
+            det = det + ((-1)**c)*self.data[0][c]*minor.determinant()
+        return det
+
+    # function to get minor of the matrix
+    def getMinor(self, i, j):
+        # get minor matrix by removing row i and column j
+        minor = []
+        for row in range(0, self.rows):
+            if row != i:
+                newrow = []
+                for col in range(0, self.cols):
+                    if col != j:
+                        newrow.append(self.data[row][col])
+                minor.append(newrow)
+        return Matrix(minor)
+
+    # function to transpose the matrix
+    def transpose(self):
+        # create an empty list to store result
+        result = []
+        # loop through columns
+        for i in range(0, self.cols):
+            newrow = []
+            # loop through rows
+            for j in range(0, self.rows):
+                # append element
+                newrow.append(self.data[j][i])
+            # add new row to result
+            result.append(newrow)
+        # return the transposed matrix
+        return Matrix(result)
+
+    # function to perform row echelon form (ref)
+    def ref(self):
+        #copy the matrix data
+        mtrx = [row[:] for row in self.data]
+        #number of rows and columns
+        rowcount = self.rows
+        colcount = self.cols
+        #start with the first pivot
+        lead = 0
+        for r in range(rowcount):
+            if lead >= colcount:
+                break
+            i = r
+            while mtrx[i][lead] == 0:
+                i += 1
+                if i == rowcount:
+                    i = r
+                    lead += 1
+                    if colcount == lead:
+                        lead -=1
+                        break
+            #swap rows
+            mtrx[i], mtrx[r] = mtrx[r], mtrx[i]
+            #eliminate entries below the pivot
+            for i in range(r+1, rowcount):
+                lv = mtrx[i][lead] / mtrx[r][lead]
+                for j in range(lead, colcount):
+                    mtrx[i][j] = mtrx[i][j] - lv * mtrx[r][j]
+            lead += 1
+        #return the ref matrix
+        return Matrix(mtrx)
+
+    #function to perform reduced row echelon form (rref)
+    def rowreduce(self):
+        # copy the matrix data
+        mtrx = [row[:] for row in self.data]
+        #number of rows and columns
+        rowcount = self.rows
+        colcount = self.cols
+        #initialize lead variable
+        lead = 0
+        for r in range(rowcount):
+            if lead >= colcount:
+                break
+            i = r
+            while mtrx[i][lead] == 0:
+                i +=1
+                if i == rowcount:
+                    i = r
+                    lead +=1
+                    if colcount == lead:
+                        lead -=1
+                        break
+            #swap rows
+            mtrx[i], mtrx[r] = mtrx[r], mtrx[i]
+            #divide row r by mtrx[r][lead]
+            lv = mtrx[r][lead]
+            mtrx[r] = [ mrx / float(lv) for mrx in mtrx[r]]
+            #eliminate other rows
+            for i in range(rowcount):
+                if i != r:
+                    lv = mtrx[i][lead]
+                    mtrx[i] = [ iv - lv*rv for rv, iv in zip(mtrx[r], mtrx[i])]
+            lead +=1
+        #return the rref matrix
+        return Matrix(mtrx)
+
+    #function to invert the matrix
+    def invert(self):
+        #check if matrix is square
+        if self.rows != self.cols:
+            print("only square matrices can be inverted")
+            return None
+        #create identity matrix
+        identity = []
+        for i in range(0, self.rows):
+            row = []
+            for j in range(0, self.cols):
+                if i == j:
+                    row.append(1)
+                else:
+                    row.append(0)
+            identity.append(row)
+        #augment the matrix with the identity matrix
+        mtrx = [self.data[i] + identity[i] for i in range(0, self.rows)]
+        #number of rows and columns
+        rowcount = self.rows
+        colcount = self.cols*2
+        #perform gj elimination
+        lead = 0
+        for r in range(rowcount):
+            if lead >= colcount:
+                break
+            i = r
+            while mtrx[i][lead] == 0:
+                i +=1
+                if i == rowcount:
+                    i = r
+                    lead +=1
+                    if colcount == lead:
+                        print("matrix is singular and cannot be inverted")
+                        return None
+            #swap rows
+            mtrx[i], mtrx[r] = mtrx[r], mtrx[i]
+            #divide row r
+            lv = mtrx[r][lead]
+            mtrx[r] = [ mrx / float(lv) for mrx in mtrx[r]]
+            #eliminate other rows
+            for i in range(rowcount):
+                if i != r:
+                    lv = mtrx[i][lead]
+                    mtrx[i] = [ iv - lv*rv for rv, iv in zip(mtrx[r], mtrx[i])]
+            lead +=1
+        #extract the inverse matrix
+        inverse_data = [ row[self.cols:] for row in mtrx ]
+        #return the inverse matrix
+        return Matrix(inverse_data)
+
+#function to get user input for matrix
+def get_matrix_input(name):
+    #ask user for number of rows
+    rows = int(input(f"enter the number of rows for matrix {name}: "))
+    #ask user for number of columns
+    cols = int(input(f"enter the number of columns for matrix {name}: "))
+    #initialize empty data list
+    data = []
+    #loop through rows
+    for i in range(rows):
+        #initialize empty row
+        row = []
+        #ask user for row data
+        print(f"enter the entries for row {i+1} of matrix {name}, separated by spaces:")
+        entries = input().split()
+        #check if number of entries matches columns
+        if len(entries) != cols:
+            print("number of entries does not match number of columns")
+            return None
+        #convert entries to floats
+        for entry in entries:
+            row.append(float(entry))
+        #add row to data
+        data.append(row)
+    #return the matrix
+    return Matrix(data)
+
+def main():
+
+    print("choose an operation:")
+    print("1 add two matrices")
+    print("2 multiply two matrices")
+    print("3 scalar times row")
+    print("4 switch rows")
+    print("5 linear combination of rows")
+    print("6 row echelon form (ref)")
+    print("7 reduced row echelon form (rref)")
+    print("8 invert a matrix")
+    print("9 determinant of a matrix")
+    print("10 transpose a matrix")
+    # get user's choice
+    choice = input("Enter the number of the operation you want to perform: ")
+
+    if choice == '1':
+        #addition
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        jill = get_matrix_input("jill")
+        if jill is None:
+            return
+        result = jack.plus(jill)
+        if result:
+            print("the sum of the matrices is:")
+            result.print()
+    elif choice == '2':
+        #multiplication
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        jill = get_matrix_input("jill")
+        if jill is None:
+            return
+        result = jack.times(jill)
+        if result:
+            print("the product of the matrices is:")
+            result.print()
+    elif choice == '3':
+        #scalar times row
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        scalar = float(input("enter the scalar: "))
+        rownumber = int(input("enter the row number (starting from 0): "))
+        result = jack.scalarTimesRow(scalar, rownumber)
+        if result:
+            print("the matrix after scalar multiplication is:")
+            result.print()
+    elif choice == '4':
+        #switch rows
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        firstrow = int(input("enter the first row number (starting from 0): "))
+        secondrow = int(input("enter the second row number (starting from 0): "))
+        result = jack.switchRows(firstrow, secondrow)
+        if result:
+            print("the matrix after switching rows is:")
+            result.print()
+    elif choice == '5':
+        #linear combination of rows
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        scalar = float(input("enter the scalar: "))
+        firstrow = int(input("enter the first row number (starting from 0): "))
+        secondrow = int(input("enter the second row number (starting from 0): "))
+        result = jack.linearCombRows(scalar, firstrow, secondrow)
+        if result:
+            print("the matrix after linear combination is:")
+            result.print()
+    elif choice == '6':
+        #row echolon form
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        result = jack.ref()
+        if result:
+            print("the row echelon form of the matrix is:")
+            result.print()
+    elif choice == '7':
+        #reduced row echelon form
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        result = jack.rowreduce()
+        if result:
+            print("the reduced row echelon form of the matrix is:")
+            result.print()
+    elif choice == '8':
+        #invert matrix
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        result = jack.invert()
+        if result:
+            print("the inverse of the matrix is:")
+            result.print()
+    elif choice == '9':
+        #determinant
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        determinant = jack.determinant()
+        if determinant is not None:
+            print(f"the determinant of the matrix is: {determinant}")
+    elif choice == '10':
+        #transpose
+        jack = get_matrix_input("jack")
+        if jack is None:
+            return
+        result = jack.transpose()
+        if result:
+            print("the transpose of the matrix is:")
+            result.print()
+    else:
+        print("invalid choice")
+
+if __name__ == "__main__":
+    main()
